@@ -1,4 +1,4 @@
-Short:    v2.27 FREE 'Action-Replay' like monitor
+Short:    v2.28 FREE 'Action-Replay' like monitor
 Author:   Alain.Malek@cryogen.com  Alain Malek
 Uploader: Alain.Malek@cryogen.com  Alain Malek
 Type:     dev/debug
@@ -28,6 +28,10 @@ be edited transparently.
 --------------------------------------------------------------------------
 
 - History
+
+version 2.28 Mar 14 2005 (Psygore/Wepl)
+
+- disassembler fixed for negative absolut word adressing modes
 
 version 2.27 Mar 07 2005 (Bertrand JARDEL/Wepl)
 

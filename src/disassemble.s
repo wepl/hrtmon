@@ -1,6 +1,6 @@
 ;APS00000000000000000000000000000000000000000000000000000000000000000000000000000000
 
-; $Id$
+; $Id: disassemble.s 1.2 2000/11/24 19:51:31 jah Exp jah $
 
 ;HRTmon Amiga system monitor
 ;Copyright (C) 1991-1998 Alain Malek Alain.Malek@cryogen.com
@@ -1809,7 +1809,10 @@ absshortBMON:
 	move.b #"(",(a0)+
 	moveq #0,d0
 	move.w (a5)+,d0
-	bsr.w hextoa_BMON
+	bpl	.pos
+	move.b	#"-",(a0)+
+	neg.w	d0
+.pos	bsr.w hextoa_BMON
 	move.b #")",(a0)+
 	move.b #".",(a0)+
 	move.b #"w",(a0)+

@@ -1,6 +1,6 @@
 ;APS00000000000000000000000000000000000000000000000000000000000000000000000000000000
 ;
-; $Id: HRTmonV2.s 1.9 2001/09/01 20:10:18 wepl Exp wepl $
+; $Id: HRTmonV2.s 1.10 2005/03/07 15:13:59 wepl Exp wepl $
 ;
 ;HRTmon Amiga system monitor
 ;Copyright (C) 1991-1998 Alain Malek Alain.Malek@cryogen.com
@@ -25,7 +25,7 @@
 *******************************
 
 VER_MAJ equ 2
-VER_MIN equ 27
+VER_MIN equ 28
 
 ***********************************************************
 
