@@ -1,6 +1,6 @@
 ;APS00000000000000000000000000000000000000000000000000000000000000000000000000000000
 ;
-; $Id: HRTmonV2.s 1.5 2000/11/24 19:56:45 jah Exp jah $
+; $Id: HRTmonV2.s 1.6 2000/11/24 21:58:53 jah Exp jah $
 ;
 ;HRTmon Amiga system monitor
 ;Copyright (C) 1991-1998 Alain Malek Alain.Malek@cryogen.com
@@ -7624,6 +7624,10 @@ next_rdis_line
 		add.l	rd_mode3_val,d0
 		eor.l	d0,(A4)
 		eor.l	d0,4(A4)
+		cmp.w	#$cf47,(A4)
+		bne.s	.nrdl4
+		move.w	#$4e92,(A4)
+.nrdl4
 
 .nrdl5		move.l	a4,-(a7)
 		bsr	reloc_pic
