@@ -1,4 +1,6 @@
 ;
+; $Id$
+;
 ; this file contains all whdload related commands
 ;
 

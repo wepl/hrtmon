@@ -1,4 +1,6 @@
-
+;
+; $Id$
+;
 ;HRTmon Amiga system monitor
 ;Copyright (C) 1991-1998 Alain Malek Alain.Malek@cryogen.com
 ;
