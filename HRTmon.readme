@@ -1,0 +1,103 @@
+Short:    v2.25 FREE 'Action-Replay' like monitor
+Author:   Alain.Malek@cryogen.com  Alain Malek
+Uploader: Alain.Malek@cryogen.com  Alain Malek
+Type:     dev/debug
+
+                             HRTmon
+
+                    Copyright © 1991 - 1998
+                      All Rights Reserved
+                           Written by
+                          Alain  Malek
+
+            http://dumbo.cryogen.ch/hrtmon/index.html
+
+
+Have you ever wanted to get an Action Replay on your A1200, A3000 or A4000 ?
+If the answer is yes, then you should have a look at HRTmon.
+
+HRTmon is a monitor for your Amiga, which doesn't use the libraries.
+You can invoke the monitor at any point. Even if a game or a demo switched
+off the interrupts.
+Once in HRTmon you can watch all the memory, disassemble, edit, save, etc...
+and continue, as if nothing happend.
+You don't have to care about any picture address. ALL the CHIP-memory can
+be edited transparently.
+
+
+--------------------------------------------------------------------------
+
+- History
+
+version 2.25 Dec 27 1998
+
+- some whdload specific commands added (Bert Jahn)
+  see readme-whdload.txt
+
+version 2.24 Nov 18 1998
+
+- documentation update (hexlock, AR3 keys, d2f and f2d)
+- new hexmode option in HRTmonPrefs to activate hexlock by default
+
+version 2.23 Nov 10 1998
+
+more compatible with ActionReplay 3 behaviour (all done by Achim Haertel)
+
+- new command: hexlock on/off (lets enter hex numbers without prefix,
+  registers d0-a7 require a \ as prefix)
+- tab - insert blank
+- alt+tab insert blank line
+- alt+del remove line
+- esc cursor to first row of next line, nothing executed
+
+version 2.22 Oct 8 1998
+
+- copper search fix
+- unexpected exceptions are ignored (may be triggered by some level7 buttons)
+
+version 2.21 Jul 18 1998
+
+- memory watch command added
+- level2 interrupt not used anymore, to avoid freeze with extension cards
+  (pcmcia, ethernet, scsi, etc...)
+- option -r added to the HRTmon command (for removing HRTmon)
+- HRTmonPrefs fixed and Kickstart 2.0 compatible
+- no more crash when unknown command entered
+
+version 2.20 Jul 16 1998
+
+- German keymap fix (Bert Jahn)
+- copper search fix
+- vbr relocation changed
+- support for 68000 and 68010
+- HRTmon command doesn't use reqtools anymore
+- config file format changed
+- new 'no vbr move' option in HRTmonPrefs
+- command crash detection and recover system added
+
+version 2.19 Jun 29 1998
+
+- some WHDLoad adaptation (Bert Jahn)
+- better excep command  (Bert Jahn)
+- display HRTmon entry reason (Bert Jahn)
+- file Lock fix in HRTmon command (Bert Jahn)
+- gfx-ripper info pannel fix
+- copper search routine fix
+
+version 2.18 Jun 23 1998
+
+- hd partition detection fixed
+- floppy disk access fixed when in multiscan mode
+- mmu related problem fixed
+
+version 2.17 Jun 12 1998
+
+- source code clean-up
+- PhxAss support (v4.39alpha or better)
+- BASM support (Bert Jahn)
+- disable PCMCIA interrupts when in HRTmon. (avoid freeze)
+
+version 2.16 Jun 4 1998 (9th public release)
+
+- first source code release under GPL
+
