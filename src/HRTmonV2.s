@@ -1,5 +1,6 @@
+;APS00000000000000000000000000000000000000000000000000000000000000000000000000000000
 ;
-; $Id$
+; $Id: HRTmonV2.s 1.4 2000/09/22 20:59:42 jah Exp jah $
 ;
 ;HRTmon Amiga system monitor
 ;Copyright (C) 1991-1998 Alain Malek Alain.Malek@cryogen.com
@@ -2920,6 +2921,8 @@ cmd_list:	dc.b 'R',0,0,0,0,0,0,0
 		dc.l cmd_fs,0,0
 		dc.b 'MW',0,0,0,0,0,0
 		dc.l cmd_mw,0,0
+		dc.b 'RD',0,0,0,0,0,0
+		dc.l cmd_rd,0,0
 
 		dc.b 'MWD',0,0,0,0,0
 		dc.l cmd_mwd,0,0
@@ -7556,6 +7559,119 @@ no_break_all	lea.l	10(a1),a1
 end_break_all	bra.w	end_command
 
 ***************************************************
+;-------------- rn-disassemble (RD) -------------------
+;syntax: rd 0 <addr> starts disassembling interleaved unencrypted blocks
+;syntax: rd 1 <addr> starts disassembling encrypted area, old RN
+;syntax: rd 2 <value> sets the decrypting value for rd 3
+;syntax: rd 3 <addr> starts disassembling encrypted area, new RN inmidst
+;syntax: rd <n> <addr> <offset> copies decrypted instructions to addr+offset
+
+cmd_rd:		move.b	(a0)+,d0
+		beq.b	ok_rd_cmd		;keep last address
+		cmp.b	#$20,d0
+		beq.b	cmd_rd
+		subq.l	#1,a0
+
+		move.l	#0,undecroffset
+
+		bsr	evaluate
+		bne.w	illegal_val
+		cmp.w	#3,d0
+		bhi.w	illegal_val
+		move.w	d0,rd_mode
+
+		cmp.w	#2,d0
+		bne.s	.readrest
+		bsr	evaluate
+		bne.w	illegal_val
+		move.l	d0,rd_mode3_val
+		bra.w	end_command
+
+
+.readrest	bsr	evaluate
+		bne.w	illegal_addr
+		btst	#0,d0			;address must be even
+		bne.w	illegal_addr
+		move.l	d0,dis_ptr
+
+		bsr	evaluate
+		bne.s	ok_rd_cmd
+		move.l	d0,undecroffset
+
+ok_rd_cmd	move.l	dis_ptr,d0		;a4 = ptr on memory
+		and.w	#$fffe,d0		;even addr.
+		move.l	d0,a4
+
+;		moveq	#8-1,d7
+next_rdis_line
+		move.w	rd_mode,d0
+		cmp.w	#1,d0
+		bne.s	.nrdl1
+		move.l	(A4),-(A7)
+		move.l	-4(A4),d0
+		not.l	d0
+		swap	D0
+		eor.l	d0,(A4)
+		bra.s	.nrdl5
+
+.nrdl1		cmp.w	#3,d0
+		bne.s	.nrdl5
+		move.l	(A4),-(A7)
+		move.l	4(A4),-(A7)
+		move.l	-4(A4),d0
+		add.l	rd_mode3_val,d0
+		eor.l	d0,(A4)
+		eor.l	d0,4(A4)
+
+.nrdl5		move.l	a4,-(a7)
+		bsr	reloc_pic
+		lea.l	general_txt,a0
+		moveq	#%1101,d0		;upper case, rd $mode $address
+		bsr	disassemble
+		move.l	(a7)+,a4
+
+		move.l	undecroffset,d7
+		beq.s	.nocopy
+		MOVEM.L	d0/a0/a1,-(A7)
+		subq.w	#1,d0
+		lea.l	(A4),a0
+		lea.l	(A4,d7.l),a1
+.copyinstr	move.b	(A0)+,(A1)+
+		dbf	d0,.copyinstr
+		MOVEM.L	(A7)+,d0/a0/a1
+.nocopy
+		moveq.l	#0,d7
+		cmp.w	#$4afc,(A4)
+		bne.s	.notogglemode
+		bset.l	#$10,d7
+.notogglemode	move.w	rd_mode,d7
+		cmp.w	#1,d7
+		bne.s	.nrdl2
+		move.l	(A7)+,(A4)
+		bra.s	.nrdl6
+
+.nrdl2		cmp.w	#3,d7
+		bne.s	.nrdl6
+		move.l	(A7)+,4(A4)
+		move.l	(A7)+,(A4)
+
+.nrdl6		add.w	d0,a4			;add instr len
+
+		btst.l	#$10,d7
+		beq.s	.nrdl3
+		bchg	#0,d7	
+		move.w	d7,rd_mode
+
+.nrdl3		lea.l	general_txt,a0
+		bsr	print
+
+;		tst.b	break
+;		dbne	d7,next_rdis_line
+
+		move.l	a4,dis_ptr
+
+		bra.w	end_command
+
 ;-------------- disassemble (D) -------------------
 
 cmd_d:		move.b	(a0)+,d0
@@ -8026,6 +8142,8 @@ label_list2
 		dc.l isp_reg
 		dc.b "MSP",0,0,0,0,0
 		dc.l msp_reg
+		dc.b "USP",0,0,0,0,0
+		dc.l usp_reg
 
 		dc.b "EXEC",0,0,0,0
 		dc.l $4
@@ -11982,6 +12100,10 @@ cmp_dest	dc.l 0
 ;-------------- A (assemble) cmd variables -----------
 
 ass_addr	dc.l 0		;address parameter
+undecroffset	dc.l 0		;offset for undecrypted instruction
+rd_mode3_val	dc.l 0		;additional value for decrypting in rn mode 3
+rd_mode		dc.w 0		;rob-northen-disassemble-mode
+		dc.w 0		;reserved
 
 ;-------------- AF cmd variables ---------------------
 
