@@ -16,7 +16,7 @@
 
 
 *******************************
-**        HRTmon v2.26       **
+**        HRTmon v2.25       **
 *******************************
 **   code by Alain Malek    ***
 *******************************
@@ -32,9 +32,8 @@ VER_MIN equ 26
 		BOPT w4-		;disable 64k warnings
 		OUTPUT "hrtmon.data"
 
-	incdir includes:
+	incdir include:
 	include whdload.i
-	include whdmacros.i
 
 OPT_OFF		MACRO
 		BOPT OD6-		;disable branch optimizing
@@ -667,7 +666,7 @@ init_code	movem.l	d0-a6,-(a7)
 		move.w	#0,$106(a1)
 		move.w	#0,$1fc(a1)
 		move.w	#$9200,$100(a1)
-	;	move.w	#0,$102(a1)
+		move.w	#0,$102(a1)
 
 
 .noinit		movem.l	(a7)+,d0-a6
@@ -679,8 +678,8 @@ init_code	movem.l	d0-a6,-(a7)
 
 exec_here	movem.l	d1/a0-a1,-(a7)
 
-		move.l	(whd_base),d0
-		bne	.nosafe
+		tst.l	(whd_base)		; added by Jeff: if whdload installed
+		beq.b	.nosafe			; added by Jeff: then no exec test
 
 		move.l	$4.w,a0
 		move.l	a0,d0
@@ -1844,7 +1843,7 @@ go_reset	move.w	#$2700,sr
 		sf	entered
 		move.l	$f80004,a0
 		subq.l	#2,a0
-		move.w	#$200,$dff100
+		move.w	#0,$dff100
 		move.w	#0,$dff1dc
 		jmp	(a0)
 
@@ -1862,7 +1861,7 @@ newirq		movem.l	d0-d7/a0-a6,-(a7)
 		cmp.b	#1,config_screen
 		bne.b	.nontsc
 
-		move.w	#$9201,$100(a6)
+		move.l	#$90010000,$100(a6)
 		move.l	#$3081f7c1,$8e(a6)
 		move.w	#$0,$1dc(a6)
 
@@ -1905,7 +1904,7 @@ newirq		movem.l	d0-d7/a0-a6,-(a7)
 		move.w #$0200,$1e4(a6)
 		move.w #$0005,$1ca(a6)
 		move.w #$001d,$1ce(a6)
-	;	move.w #$0012,$104(a6)
+		move.w #$0012,$104(a6)
 		move.w #$0c21,$106(a6)
 
 		move.w	color0,$180(a6)
@@ -1914,7 +1913,7 @@ newirq		movem.l	d0-d7/a0-a6,-(a7)
 		bra.b	.okmode
 
 .nomulti
-		move.w	#$9201,$100(a6)
+		move.l	#$90010000,$100(a6)
 		move.l	#$30812cc1,$8e(a6)
 		move.w	#$20,$1dc(a6)
 
@@ -1977,8 +1976,8 @@ newirq2		movem.l	d0-d1/a0/a1/a5-a6,-(a7)
 		move.w	nb_keys,d1
 		move.b	d0,(a0,d1.w)		;save key in key buffer
 		addq.w	#1,nb_keys
-.no_buf		tst.b	d0
-		bmi.b	.nonew
+.no_buf		btst	#7,d0
+		bne.b	.nonew
 		sf	new_key
 .nonew		bset	#6,$bfee01
 		moveq	#3-1,d1
@@ -3001,8 +3000,6 @@ cmd_list:	dc.b 'R',0,0,0,0,0,0,0
 	;whdload related commands
 		dc.b 'WS',0,0,0,0,0,0
 		dc.l cmd_ws,0,0
-		dc.b 'WD',0,0,0,0,0,0
-		dc.l cmd_wd,0,0
 		dc.b 'WQ',0,0,0,0,0,0
 		dc.l cmd_wq,0,0
 		dc.b 'WPR',0,0,0,0,0
@@ -3011,8 +3008,6 @@ cmd_list:	dc.b 'R',0,0,0,0,0,0,0
 		dc.l cmd_wprw,0,0
 		dc.b 'WPW',0,0,0,0,0
 		dc.l cmd_wpw,0,0
-		dc.b 'WPSMC',0,0,0
-		dc.l cmd_wpsmc,0,0
 
 		dcb.b 8,0
 		dc.l 0,0,0
@@ -11373,7 +11368,7 @@ WriteM_Block	movem.l	d1-d3/a0-a3,-(a7)
 read_palette	movem.l	d0-d2/a0-a1,-(a7)
 		tst.b	config_AGA
 		beq.b	.noaga
-		move.w	#$0124,$104(a6)		;set read mode
+		move.w	#$0100,$104(a6)		;set read mode
 		lea.l	paletteL,a0
 		move.w	#$200,d0
 		moveq	#8-1,d1
@@ -11395,7 +11390,7 @@ read_palette	movem.l	d0-d2/a0-a1,-(a7)
 		dbf	d2,.color2
 		add.w	#$2000,d0
 		dbf	d1,.loop_bank2
-		move.w	#$24,$104(a6)		;set write mode
+		move.w	#0,$104(a6)		;set write mode
 .noaga		movem.l	(a7)+,d0-d2/a0-a1
 		rts
 
@@ -11642,7 +11637,7 @@ ascII_mac	macro
 		dc.b " by Alain Malek patched by Wepl at "
 	DOSCMD	"WDate  >T:date"
 	INCBIN	"T:date"
-		dc.b "               "
+		dc.b "       "
 	ENDC
 
 		dc.b \1
