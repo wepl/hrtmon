@@ -23,11 +23,15 @@ the following commands are currently available:
 	write whdload's coredumps and returns to workbench
 	(there is no stackframe cleanup!)
 
+ WL	name start - load file into memory
+	does the same as command L and has the same parameters
+	the actual directory is that from the slave (or ws_CurrentDir if used)
+
  WS	name start end - save memory region to a file
 	does the same as command S and has the same parameters
 	the actual directory is that from the slave (or ws_CurrentDir if used)
 	if you are using FFS it's recommend to save to RAM: to avoid non 
 	validated disks if something goes wrong
 
-Wepl 28.11.1999 (wepl@kagi.com)
+Wepl 24.11.2000 (wepl@kagi.com)
 
