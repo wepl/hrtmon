@@ -1,6 +1,6 @@
 ;APS00000000000000000000000000000000000000000000000000000000000000000000000000000000
 ;
-; $Id: HRTmonV2.s 1.8 2001/01/10 22:19:09 jah Exp jah $
+; $Id: HRTmonV2.s 1.9 2001/09/01 20:10:18 wepl Exp wepl $
 ;
 ;HRTmon Amiga system monitor
 ;Copyright (C) 1991-1998 Alain Malek Alain.Malek@cryogen.com
@@ -25,7 +25,7 @@
 *******************************
 
 VER_MAJ equ 2
-VER_MIN equ 26
+VER_MIN equ 27
 
 ***********************************************************
 
@@ -623,7 +623,11 @@ init_code	movem.l	d0-a6,-(a7)
 
 		jsr	init_ascII
 
+		tst.l	whd_base	;dont test drive under WHDLoad to avoid
+					;Snoop faults where accessing cia registers
+		bne	.inwhd
 		jsr	test_drive	;test which floppy drive is present
+.inwhd
 
 		tst.b	drive_present+1
 		beq.b	.noDF1
@@ -891,10 +895,13 @@ ok_ssp_a7
 		dc.w	$4e7a,$0808		;movec	PCR,d0
 .okmsp		move.l	d0,msp_reg
 
+	;this make problems under WHDLoad (warning changed CACR)
+	IFEQ 1
 		cmp.w	#4,proc_type
 		bge.b	.no23
 		or.w	#$2111,d0		;switch all CACHE ON
 		movec	d0,CACR			;(68020/68030 only)
+	ENDC
 .no23
 
 	;wepl: if whdload is active don't change any vectors except the vbi

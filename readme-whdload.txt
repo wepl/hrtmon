@@ -39,5 +39,5 @@ the following keys are currently available:
 
  Alt + PrtSc	dumps the actual screen as "RAM:hrtmon-screen.txt"
 
-Wepl 01.09.2001 (wepl@whdload.org)
+Wepl 01.09.2001 (wepl@whdload.de)
 

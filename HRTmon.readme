@@ -1,4 +1,4 @@
-Short:    v2.25 FREE 'Action-Replay' like monitor
+Short:    v2.27 FREE 'Action-Replay' like monitor
 Author:   Alain.Malek@cryogen.com  Alain Malek
 Uploader: Alain.Malek@cryogen.com  Alain Malek
 Type:     dev/debug
@@ -28,6 +28,12 @@ be edited transparently.
 --------------------------------------------------------------------------
 
 - History
+
+version 2.27 Mar 07 2005 (Bertrand JARDEL/Wepl)
+
+- better whdload compatibility with 68030 (CACR modification removed)
+- better support for whdload's SNOOP mode (no longer checks for additional
+  drives if called from WHDLoad)
 
 version 2.25 Dec 27 1998
 
