@@ -1,11 +1,12 @@
 ;
-; $Id$
+; $Id: whdload.s 1.2 2000/09/22 20:59:42 jah Exp jah $
 ;
 ; this file contains all whdload related commands
 ;
 
  IFND WHDLOAD_I
 TDREASON_OK		 = -1
+TDREASON_DEBUG		 =  5
 resload_Abort		 =  4
 resload_LoadFile	 =  8
 resload_SaveFile	 = 12
@@ -29,13 +30,67 @@ resload_Relocate	 = 80
 resload_Delay		 = 84
 resload_DeleteFile	 = 88
 resload_ProtectSMC	 = 92
-waitvb	MACRO
-.1\@		btst	#0,($dff005)
-		beq	.1\@
-.2\@		btst	#0,($dff005)
-		bne	.2\@
-	ENDM
  ENDC
+
+;---------------
+; command WL -	load a file using resload_LoadFile
+;		(the same as command L but via WHDLoad)
+;
+
+cmd_wl		tst.l	(whd_base)
+		beq	w_notinwhdload
+
+		lea	ev_line,a1
+		bsr	read_name
+		tst.b	(a1)
+		move.l	a1,d3			;d3 = filename
+		beq	illegal_name
+		bsr	evaluate
+		bne	illegal_addr
+		move.l	d0,d4			;d4 = address
+		bsr	evaluate
+		beq	illegal_addr
+
+		bsr	w_wait
+		jsr	remove_pic
+
+		move.l	d3,a0
+		move.l	(whd_base),a2
+		jsr	(resload_GetFileSize,a2)
+		move.l	d0,d5			;d5 = length
+		beq	.nf
+		
+		move.l	d3,a0			;name
+		move.l	d4,a1			;address
+		move.l	(whd_base),a2
+		jsr	(resload_LoadFile,a2)
+.nf
+		jsr	set_pic
+
+		tst.l	d5
+		bne	.ok
+		lea	(w_txt_nofile),a0
+		bsr	print
+		jmp	end_command
+.ok
+		lea	(w_txt_file),a0
+		bsr	print
+		move.l	d3,a0
+		bsr	print
+		lea	(w_txt_loaded),a0
+		bsr	print
+		move.l	d4,d0
+		move.l	#8,d1
+		bsr	print_hex
+		lea	(w_txt_length),a0
+		bsr	print
+		move.l	d5,d0
+		bsr	print_hex
+		lea	(w_txt_lengthd),a0
+		bsr	print
+		move.l	d5,d0
+		bsr	print_decCR
+		jmp	end_command
 
 ;---------------
 ; command WS -	save memory region using resload_SaveFile
@@ -57,6 +112,7 @@ cmd_ws		tst.l	(whd_base)
 		sub.l	d4,d0			;d0=save len
 		ble	illegal_addr		;end must be > start
 
+		bsr	w_wait
 		jsr	remove_pic
 		
 		move.l	a1,a0			;name
@@ -77,6 +133,8 @@ cmd_ws		tst.l	(whd_base)
 cmd_wq		move.l	(whd_base),d0
 		beq	w_notinwhdload
 
+		bsr	w_wait
+
 		sf	entered
 		sf	no_curs
 		bsr	clear_break
@@ -90,6 +148,8 @@ cmd_wq		move.l	(whd_base),d0
 
 cmd_wd		move.l	(whd_base),d0
 		beq	w_notinwhdload
+
+		bsr	w_wait
 
 		sf	entered
 		sf	no_curs
@@ -229,14 +289,26 @@ w_notinwhdload	lea	(w_txt_notinwhdload,pc),a0
 w_resloaderr	lea	(w_txt_resloaderr,pc),a0
 
 w_printreturn	pea	(end_command)
-	;wait because strange keyboard handling
-		moveq	#40,d0
-.1		waitvb
-		dbf	d0,.1
 		bra	print
+
+	;wait for key release to avoid further keypress detections
+w_wait		btst	#0,(_ciaa+ciasdr)
+		bne	w_wait
+.1		btst	#0,$dff005
+		beq	.1
+.2		btst	#0,$dff005
+		bne	.2
+.3		btst	#0,$dff005
+		beq	.3
+		rts
 
 w_txt_success		dc.b	"success",10,0
 w_txt_resloaderr	dc.b	"error, resload function failed",10,0
 w_txt_notinwhdload	dc.b	"error, whdload not active or old whdload version",10,0
+w_txt_nofile		dc.b	"file not found (or length = 0)",10,0
+w_txt_file		dc.b	"file '",0
+w_txt_loaded		dc.b	"' loaded to $",0
+w_txt_length		dc.b	" length=$",0
+w_txt_lengthd		dc.b	"=",0
 	EVEN
 
