@@ -1,4 +1,6 @@
-
+;
+; $Id$
+;
 ;HRTmon Amiga system monitor
 ;Copyright (C) 1991-1998 Alain Malek Alain.Malek@cryogen.com
 ;
@@ -126,6 +128,17 @@ help_txt
  dc.b "Help    Switch info panel on/off",$a
  dc.b "Del     Change color of info panel",$a
  dc.b "F1      Start/Stop height set mode",$a
+ dc.b $a
+ dc.b "--- WHDLoad help ---------------",$a
+ dc.b $a
+ dc.b "WL    name adr      : load a file in memory",$a
+ dc.b "WS    name strt end : save memory to a file",$a
+ dc.b "WPR   strt len      : protect memory from reading",$a
+ dc.b "WPW   strt len      : protect memory from writing",$a
+ dc.b "WPRW  strt len      : protect memory from reading and writing",$a
+ dc.b "WPSMC strt len      : snoop memory region for selfmodifying code",$a
+ dc.b "WQ                  : quit whdload",$a
+ dc.b "WD                  : quit whdload with debug (dumpfile)",$a
 
 	dc.b 0
 		even
