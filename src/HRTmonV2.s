@@ -1,6 +1,6 @@
 ;APS00000000000000000000000000000000000000000000000000000000000000000000000000000000
 ;
-; $Id: HRTmonV2.s 1.4 2000/09/22 20:59:42 jah Exp jah $
+; $Id: HRTmonV2.s 1.5 2000/11/24 19:56:45 jah Exp jah $
 ;
 ;HRTmon Amiga system monitor
 ;Copyright (C) 1991-1998 Alain Malek Alain.Malek@cryogen.com
@@ -3004,6 +3004,8 @@ cmd_list:	dc.b 'R',0,0,0,0,0,0,0
 		dc.l cmd_hexlock,0,0
 
 	;whdload related commands
+		dc.b 'WL',0,0,0,0,0,0
+		dc.l cmd_wl,0,0
 		dc.b 'WS',0,0,0,0,0,0
 		dc.l cmd_ws,0,0
 		dc.b 'WD',0,0,0,0,0,0
