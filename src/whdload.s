@@ -1,5 +1,5 @@
 ;
-; $Id: whdload.s 1.2 2000/09/22 20:59:42 jah Exp jah $
+; $Id: whdload.s 1.3 2000/11/24 21:57:11 jah Exp jah $
 ;
 ; this file contains all whdload related commands
 ;
@@ -126,6 +126,46 @@ cmd_ws		tst.l	(whd_base)
 						;WHDL_NoError is not active
 		beq	w_resloaderr
 		bra	w_success
+
+;---------------
+; key Alt+PrtSc - save cuurent screen using resload_SaveFile
+;
+
+key_prtsc	movem.l	d0-d3/a0-a2,-(a7)
+
+		tst.l	(whd_base)
+		beq	.ret
+
+		bsr	w_wait			;'PrtSc'
+		bsr	w_wait			;'Alt'
+
+		move.w	screen_height,d2
+		sub.w	#3,d2
+		move.w	d2,d3
+		mulu	#81,d3
+		
+		move.l	ascII_ptr,a0
+		sub.w	d3,a7
+		move.l	a7,a2
+		subq.w	#1,d2
+.2		moveq	#80-1,d0
+.1		move.b	(a0)+,(a2)+
+		dbf	d0,.1
+		move.b	#10,(a2)+
+		dbf	d2,.2
+
+		move.l	d3,d0			;length
+		lea	(.prtsc),a0		;name
+		move.l	a7,a1			;address
+		move.l	(whd_base),a2
+		jsr	(resload_SaveFile,a2)
+		
+		add.w	d3,a7
+
+.ret		movem.l	(a7)+,d0-d3/a0-a2
+		rts
+
+.prtsc		dc.b	"ram:hrtmon-screen.txt",0
 
 ;---------------
 ; command WQ -	quit WHDLoad

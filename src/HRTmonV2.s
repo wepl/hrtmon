@@ -1,6 +1,6 @@
 ;APS00000000000000000000000000000000000000000000000000000000000000000000000000000000
 ;
-; $Id: HRTmonV2.s 1.6 2000/11/24 21:58:53 jah Exp jah $
+; $Id: HRTmonV2.s 1.7 2000/11/24 22:06:07 jah Exp jah $
 ;
 ;HRTmon Amiga system monitor
 ;Copyright (C) 1991-1998 Alain Malek Alain.Malek@cryogen.com
@@ -2145,6 +2145,16 @@ ok_esc		bsr	clear_cursor
 
 		bsr	set_cursor
 no_esc
+
+;-------------- Print Screen -------------------------
+
+		cmp.b	#$5d,d0
+		bne	.noprtsc
+		tst.b	alt_mode
+		beq	.noprtsc
+		jsr	key_prtsc
+		move.b	#$7f,(a0)
+.noprtsc
 
 ;-------------- Return -------------------------------
 		cmp.b	#$43,d0
@@ -11563,26 +11573,6 @@ restore_palette	movem.l	d0-d2/a0-a1,-(a7)
 ;-------------- SCAN scan memory for samples -----------------------------
 
 cmd_scan	jmp	end_command
-
-**************************************************************************
-*************** MMU routines *********************************************
-**************************************************************************
-
-;set a page mode
-;-> a0 address
-;-> mode 0=normal, 1=write protected, read/write protected
-;<- d0 error (0=ok)
-
-
-mmu_set_page:
-		cmp.w	#4,proc_type
-		blt.b	.err
-
-;-------------- 68040/68060 MMU -----------
-		nop
-
-.err		moveq	#-1,d0
-		rts
 
 **************************************************************************
 ;--------------

@@ -33,5 +33,9 @@ the following commands are currently available:
 	if you are using FFS it's recommend to save to RAM: to avoid non 
 	validated disks if something goes wrong
 
-Wepl 24.11.2000 (wepl@kagi.com)
+the following keys are currently available:
+
+ Alt + PrtSc	dumps the actual screen as "RAM:hrtmon-screen.txt"
+
+Wepl 10.01.2001 (wepl@kagi.com)
 
