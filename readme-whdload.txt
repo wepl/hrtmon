@@ -16,6 +16,8 @@ the following commands are currently available:
  WPW	start length - protect memory from writing
 	see whdload.doc section resload_ProtectWrite
 
+ WPD	start length - delete a previousy created memory protection
+
  WQ	- quit whdload
 	returns to workbench
 
@@ -37,5 +39,5 @@ the following keys are currently available:
 
  Alt + PrtSc	dumps the actual screen as "RAM:hrtmon-screen.txt"
 
-Wepl 10.01.2001 (wepl@kagi.com)
+Wepl 01.09.2001 (wepl@whdload.org)
 

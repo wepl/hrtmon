@@ -1,5 +1,5 @@
 ;
-; $Id: whdload.s 1.3 2000/11/24 21:57:11 jah Exp jah $
+; $Id: whdload.s 1.4 2001/01/10 22:19:16 jah Exp jah $
 ;
 ; this file contains all whdload related commands
 ;
@@ -294,6 +294,27 @@ cmd_wpw		tst.l	(whd_base)
 		move.l	d4,a0
 		move.l	(whd_base),a2
 		jsr	(resload_ProtectWrite,a2)
+		
+		bra	w_success
+		
+;---------------
+; command WPD -	delete memory protection
+
+cmd_wpd		tst.l	(whd_base)
+		beq	w_notinwhdload
+
+		bsr	evaluate
+		bne	illegal_addr
+		move.l	d0,d4			;d4 = address
+
+		bsr	evaluate
+		bne	illegal_addr
+		move.l	d0,d5			;d5 = length
+
+		move.l	d5,d0
+		move.l	d4,a0
+		move.l	(whd_base),a2
+		jsr	(resload_ProtectRemove,a2)
 		
 		bra	w_success
 		

@@ -1,5 +1,5 @@
 ;
-; $Id$
+; $Id: help.s 1.2 2000/11/24 21:57:52 jah Exp jah $
 ;
 ;HRTmon Amiga system monitor
 ;Copyright (C) 1991-1998 Alain Malek Alain.Malek@cryogen.com
@@ -133,6 +133,7 @@ help_txt
  dc.b $a
  dc.b "WL    name adr      : load a file in memory",$a
  dc.b "WS    name strt end : save memory to a file",$a
+ dc.b "WPD   strt len      : delete memory protection",$a
  dc.b "WPR   strt len      : protect memory from reading",$a
  dc.b "WPW   strt len      : protect memory from writing",$a
  dc.b "WPRW  strt len      : protect memory from reading and writing",$a

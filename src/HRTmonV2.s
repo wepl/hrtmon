@@ -1,6 +1,6 @@
 ;APS00000000000000000000000000000000000000000000000000000000000000000000000000000000
 ;
-; $Id: HRTmonV2.s 1.7 2000/11/24 22:06:07 jah Exp jah $
+; $Id: HRTmonV2.s 1.8 2001/01/10 22:19:09 jah Exp jah $
 ;
 ;HRTmon Amiga system monitor
 ;Copyright (C) 1991-1998 Alain Malek Alain.Malek@cryogen.com
@@ -3028,6 +3028,8 @@ cmd_list:	dc.b 'R',0,0,0,0,0,0,0
 		dc.l cmd_wprw,0,0
 		dc.b 'WPW',0,0,0,0,0
 		dc.l cmd_wpw,0,0
+		dc.b 'WPD',0,0,0,0,0
+		dc.l cmd_wpd,0,0
 		dc.b 'WPSMC',0,0,0
 		dc.l cmd_wpsmc,0,0
 
