@@ -1,3 +1,6 @@
+;APS00000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+; $Id$
 
 ;HRTmon Amiga system monitor
 ;Copyright (C) 1991-1998 Alain Malek Alain.Malek@cryogen.com
@@ -34,10 +37,11 @@ HRTeval equ -1		;use evaluate routine from HRTmon ? (for assemble)
 *****************************************************************************
 ;-> a4=address to dis
 ;-> a0=ptr on dest string
-;-> d0=%00000RAU
+;-> d0=%0000NRAU
 ;	U=1 upper case
 ;	A=1 print 'd $address'
 ;	R=1 print indirect address
+;	N=1 print rd <rd_mode>.w $address
 ;<- d0=len of instr.
 
 baseBMON
@@ -80,11 +84,25 @@ dis0BMON:	move.w d1,d0
 	move.l d6,d0
 	move.l	linebufBMON,a0
 	btst	#1,modeBMON
-	beq.b	.noaddress
+	beq.b	.checkrd
 	move.w #"d ",(a0)+
 	move.b	#"$",(a0)+
 	bsr.w longtoaBMON
 	addq.w #1,a0
+	bra.s	.noaddress
+
+.checkrd
+	btst	#3,modeBMON
+	beq.s	.noaddress
+	move.l #"rd $",(a0)+
+	moveq.l	#0,d0
+	move.w	rd_mode,d0
+	bsr.w	bytetoaBMON
+	move.w	#" $",(A0)+
+	move.l	d6,d0
+	bsr.w longtoaBMON
+	addq.w #1,a0
+
 .noaddress
 
 	lea -14+6(a4),a1
