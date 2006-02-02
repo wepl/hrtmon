@@ -1,6 +1,6 @@
 ;APS00000000000000000000000000000000000000000000000000000000000000000000000000000000
 ;
-; $Id: HRTmonV2.s 1.10 2005/03/07 15:13:59 wepl Exp wepl $
+; $Id: HRTmonV2.s 1.11 2005/03/14 18:05:27 wepl Exp wepl $
 ;
 ;HRTmon Amiga system monitor
 ;Copyright (C) 1991-1998 Alain Malek Alain.Malek@cryogen.com
@@ -25,7 +25,7 @@
 *******************************
 
 VER_MAJ equ 2
-VER_MIN equ 28
+VER_MIN equ 29
 
 ***********************************************************
 
@@ -167,6 +167,8 @@ whd_base	dc.l 0			;60 resload base if HrtMon is called under WHDLoad
 whd_version	dc.w 0			;64 version of WHDLoad
 whd_revision	dc.w 0			;66 revision of WHDLoad
 max_chip	dc.l 0			;68 maximum value for CHIP-RAM
+whd_expstrt	dc.l 0			;72 WHDLoad expmem lower bound
+whd_expstop	dc.l 0			;76 WHDLoad expmem upper bound
 		even
 
 
@@ -3021,6 +3023,8 @@ cmd_list:	dc.b 'R',0,0,0,0,0,0,0
 		dc.l cmd_hexlock,0,0
 
 	;whdload related commands
+		dc.b 'WI',0,0,0,0,0,0
+		dc.l cmd_wi,0,0
 		dc.b 'WL',0,0,0,0,0,0
 		dc.l cmd_wl,0,0
 		dc.b 'WS',0,0,0,0,0,0
@@ -5811,7 +5815,7 @@ cmd_fi		bsr	evaluate
 		bsr	reloc_pic
 		move.l	d6,a0			;ev_line
 		moveq	#%100,d0	;lower case, no d $address,indirect
-		bsr	disassemble
+		jsr	disassemble
 
 		move.l	d5,a0			;find_list
 		move.b	(a0)+,d0

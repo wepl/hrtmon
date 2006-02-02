@@ -1,5 +1,5 @@
 ;
-; $Id: help.s 1.2 2000/11/24 21:57:52 jah Exp jah $
+; $Id: help.s 1.3 2001/09/01 20:10:18 wepl Exp wepl $
 ;
 ;HRTmon Amiga system monitor
 ;Copyright (C) 1991-1998 Alain Malek Alain.Malek@cryogen.com
@@ -131,6 +131,7 @@ help_txt
  dc.b $a
  dc.b "--- WHDLoad help ---------------",$a
  dc.b $a
+ dc.b "WI                  : show info about WHDLoad and memory",10
  dc.b "WL    name adr      : load a file in memory",$a
  dc.b "WS    name strt end : save memory to a file",$a
  dc.b "WPD   strt len      : delete memory protection",$a

@@ -1,5 +1,4 @@
-;
-; $Id: whdload.s 1.4 2001/01/10 22:19:16 jah Exp jah $
+; $Id: whdload.s 1.5 2001/09/01 20:10:18 wepl Exp wepl $
 ;
 ; this file contains all whdload related commands
 ;
@@ -340,6 +339,54 @@ cmd_wpsmc	tst.l	(whd_base)
 		bra	w_success
 		
 ;---------------
+; command WI - show infos regarding WHDLoad
+
+cmd_wi		tst.l	(whd_base)
+		beq	w_notinwhdload
+
+		lea	(w_txt_whdload,pc),a0
+		cmp.b	#"0",(10,a0)
+		bne	.verok
+		moveq	#0,d0
+		move.w	(whd_version),d0
+		divu	#10,d0
+		add.b	d0,(9,a0)
+		swap	d0
+		add.b	d0,(10,a0)
+		move.w	(whd_revision),d0
+		add.b	d0,(12,a0)
+.verok		bsr	print
+
+		lea	(w_txt_chipmem,pc),a0
+		bsr	print
+		move.l	(max_chip),d0
+		moveq	#6,d1
+		bsr	print_hexCR
+
+	;if WHDLoad >= v16.6 print expmem
+		cmp.l	#16<<16+6,(whd_version)
+		blo	w_end
+		move.l	(whd_expstrt),d0
+		beq	w_end
+		lea	(w_txt_expmem1,pc),a0
+		bsr	print
+		moveq	#8,d1
+		bsr	print_hex
+		lea	(w_txt_expmem2,pc),a0
+		bsr	print
+		move.l	(whd_expstop),d0
+		moveq	#8,d1
+		bsr	print_hex
+		lea	(w_txt_expmem3,pc),a0
+		bsr	print
+		move.l	(whd_expstop),d0
+		sub.l	(whd_expstrt),d0
+		moveq	#6,d1
+		bsr	print_hexCR
+		
+		bra	w_end
+		
+;---------------
 		
 w_success	lea	(w_txt_success,pc),a0
 		bra	w_printreturn
@@ -349,8 +396,8 @@ w_notinwhdload	lea	(w_txt_notinwhdload,pc),a0
 
 w_resloaderr	lea	(w_txt_resloaderr,pc),a0
 
-w_printreturn	pea	(end_command)
-		bra	print
+w_printreturn	bsr	print
+w_end		jmp	end_command
 
 	;wait for key release to avoid further keypress detections
 w_wait		btst	#0,(_ciaa+ciasdr)
@@ -371,5 +418,10 @@ w_txt_file		dc.b	"file '",0
 w_txt_loaded		dc.b	"' loaded to $",0
 w_txt_length		dc.b	" length=$",0
 w_txt_lengthd		dc.b	"=",0
+w_txt_whdload		dc.b	"WHDLoad v00.0",10,0
+w_txt_chipmem		dc.b	"chipmem   $000000 -   $",0
+w_txt_expmem1		dc.b	"expmem  $",0
+w_txt_expmem2		dc.b	" - $",0
+w_txt_expmem3		dc.b	" = $",0
 	EVEN
 
