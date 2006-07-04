@@ -1,6 +1,6 @@
 ;APS00000000000000000000000000000000000000000000000000000000000000000000000000000000
 ;
-; $Id: HRTmonV2.s 1.11 2005/03/14 18:05:27 wepl Exp wepl $
+; $Id: HRTmonV2.s 1.12 2006/02/02 23:51:02 wepl Exp wepl $
 ;
 ;HRTmon Amiga system monitor
 ;Copyright (C) 1991-1998 Alain Malek Alain.Malek@cryogen.com
@@ -19,13 +19,16 @@
 
 
 *******************************
-**        HRTmon v2.26       **
+**        HRTmon v2.xx       **
 *******************************
 **   code by Alain Malek    ***
 *******************************
 
 VER_MAJ equ 2
-VER_MIN equ 29
+VER_MIN equ 30
+	IFND CARTRIDGE		;maybe set via commandline
+CARTRIDGE = 0			;0 = normal mode  1= UAE cartridge mode
+	ENDC
 
 ***********************************************************
 
@@ -33,9 +36,13 @@ VER_MIN equ 29
 		MC68030
 		SUPER			;disable supervisor warnings
 		BOPT w4-		;disable 64k warnings
+	IFEQ CARTRIDGE
 		OUTPUT "hrtmon.data"
+	ELSE
+		OUTPUT "hrtmon.rom"
+	ENDC
 
-	incdir includes:
+	incdir	includes:
 	include whdload.i
 	include whdmacros.i
 
@@ -45,12 +52,16 @@ OPT_OFF		MACRO
 OPT_ON		MACRO
 		BOPT OD6+		;enable branch optimizing
 		ENDM
-
 	ENDC
 
 	IFD _PHXASS_
 		MC68030
 		OPT NBL
+	IFEQ CARTRIDGE
+		FILE "hrtmon.data"
+	ELSE
+		FILE "hrtmon.rom"
+	ENDC
 
 OPT_OFF		MACRO
 		OPT 0
@@ -58,7 +69,6 @@ OPT_OFF		MACRO
 OPT_ON		MACRO
 		OPT NBL
 		ENDM
-
 	ENDC
 
 	IFND BARFLY
@@ -85,6 +95,10 @@ OPT_OFF	MACRO
 	ENDC
 	ENDC
 
+	IFNE CARTRIDGE
+		ORG $800000
+	ENDC
+
 ***********************************************************
 
 version	macro
@@ -97,13 +111,13 @@ PICSIZE equ $9800	;size of mem used for bitmap ( > MAX_SCREEN*h*80 )
 
 MAX_SCREEN equ 52
 
+	IFNE CARTRIDGE
+UAE_CUSTOM	equ $88f000	;saved custom table in uae
+	ENDC
 
 	incdir include:
 	include exec/tasks.i
 	include hardware/custom.i
-
-***********************************************************
-
 	include exec/types.i
 	include exec/execbase.i
 	include devices/hardblocks.i
@@ -130,15 +144,21 @@ RELOC_PIC:	macro
 
 ***********************************************************
 
-start		;bra.w	monitor
-		moveq	#0,d0
+start
+	IFEQ CARTRIDGE
+		moveq	#-1,d0		;not executable
 		rts
+	ENDC
 		dc.b "HRT!"		;4
 
 	OPT_OFF
+	IFEQ CARTRIDGE
 		bra.w	mon_install	;8  jmp to install routine
+	ENDC
 		bra.w	monitor		;12 jmp to monitor
+	IFEQ CARTRIDGE
 		bra.w	mon_remove	;16 jmp to remove routine
+	ENDC
 	OPT_ON
 mon_size	dc.l 0			;20 size of HRTmon (for FreeMem)
 color0		dc.w 0			;24 color0
@@ -171,7 +191,19 @@ whd_expstrt	dc.l 0			;72 WHDLoad expmem lower bound
 whd_expstop	dc.l 0			;76 WHDLoad expmem upper bound
 		even
 
+		dc.b	"$VER: HRTmon.data "
+		version
+		dc.b	" "
+	IFND BARFLY
+		dc.b	"(xx.xx.2006)"
+	ELSE
+	DOSCMD	"WDate  >T:date"
+	INCBIN	"T:date"
+	ENDC
+		dc.b	10,0
+	EVEN
 
+	IFEQ CARTRIDGE
 mon_remove	movem.l	d1-a6,-(a7)
 		move.l	$4.w,a6
 		lea.l	.super(pc),a5
@@ -222,7 +254,7 @@ mon_remove	movem.l	d1-a6,-(a7)
 		movec	a3,vbr
 .novbr
 		rte
-
+	ENDC
 
 mon_install	movem.l	d1-a6,-(a7)
 
@@ -261,8 +293,10 @@ mon_install	movem.l	d1-a6,-(a7)
 		tst.b	config_hexmode
 		sne	hex_default
 
+	IFEQ CARTRIDGE
 		move.l	$4.w,a6
 		move.l	MaxLocMem(a6),max_chip
+	ENDC
 
 		tst.b	config_IDE
 		beq.w	.noide
@@ -312,6 +346,7 @@ mon_install	movem.l	d1-a6,-(a7)
 		movem.l	.map(pc,d0.l),d0-d2
 		movem.l	d0-d2,board_ptr
 
+	IFEQ CARTRIDGE
 		tst.b	config_lview
 		beq.b	.nolview
 		lea.l	gfxname(pc),a1
@@ -335,7 +370,9 @@ mon_install	movem.l	d1-a6,-(a7)
 .nolview
 		lea.l	.super(pc),a5
 		jsr	-30(a6)
-
+	ELSE
+		bsr	.super
+	ENDC
 		movem.l	(a7)+,d1-a6
 		moveq	#0,d0
 		rts
@@ -360,6 +397,9 @@ mon_install	movem.l	d1-a6,-(a7)
 .copy		move.l	(a0)+,(a1)+	;backup vector table
 		dbf	d0,.copy
 
+	IFNE CARTRIDGE
+		rts
+	ELSE
 		tst.b	config_novbr	;user doesn't want to move vbr ?
 		bne.b	.no_vbr_move
 		move.l	a4,d0
@@ -398,22 +438,25 @@ mon_install	movem.l	d1-a6,-(a7)
 
 .no_entry
 		rte
+	ENDC
 
 
 
-		cnop	0,4
+	CNOP 0,4
+changed_disk	dcb.l 16,0
+old_vbr		dc.l 0
+
+	IFEQ CARTRIDGE
 gfxbase		dc.l 0
 wbview		dc.l 0
 signal_no	dc.l 0
-changed_disk	dcb.l 16,0
-gfxname		dc.b "graphics.library",0
-;dosname		dc.b "dos.library",0
-lview_name	dc.b "HRTmon system task",0
-
-		cnop	0,4
+oldlev7		dc.l 0
 tc_block	dcb.b TC_SIZE,0
 task_stack	dcb.b $400,0
 task_stackend
+gfxname		dc.b "graphics.library",0
+lview_name	dc.b "HRTmon system task",0
+	EVEN
 
 task_code
 		move.l	$4.w,a6
@@ -502,10 +545,6 @@ task_code
 
 ;.tmp_name	dcb.b	34,0
 
-		cnop	0,4
-oldlev7		dc.l 0
-old_vbr		dc.l 0
-
 ;-------------- interrupt routine to catch 'key' press and right-mouse
 ;-------------- this routine is used only on 68000
 
@@ -592,6 +631,8 @@ except_entry	tst.b	config_RM
 .jmp_addr	dc.l 0
 .newsr		dc.w 0
 
+	ENDC
+
 		cnop 0,16
 
 location	dc.l 0			;HRTmon location
@@ -622,7 +663,9 @@ init_code	movem.l	d0-a6,-(a7)
 		cmp.l	inited,d0
 		beq.w	.noinit
 .init		move.l	d0,inited
-
+	IFNE CARTRIDGE
+		jsr	mon_install
+	ENDC
 		jsr	init_ascII
 
 		tst.l	whd_base	;dont test drive under WHDLoad to avoid
@@ -676,8 +719,9 @@ init_code	movem.l	d0-a6,-(a7)
 		move.w	#0,$106(a1)
 		move.w	#0,$1fc(a1)
 		move.w	#$9200,$100(a1)
-	;	move.w	#0,$102(a1)		;avoid unneccessary gfx corruption
-
+	IFNE CARTRIDGE
+		move.w	#0,$102(a1)		;avoid unneccessary gfx corruption
+	ENDC
 
 .noinit		movem.l	(a7)+,d0-a6
 		rts
@@ -800,6 +844,7 @@ monitor:	or	#$700,sr	;on 68060 it is granted that the first instruction
 
 		bsr	ClearCache
 
+	IFEQ CARTRIDGE
 		tst.b	config_lview
 		beq.b	.nolview
 		bsr	exec_here
@@ -815,7 +860,7 @@ monitor:	or	#$700,sr	;on 68060 it is granted that the first instruction
 		move.l	$4.w,a6
 		jsr	-324(a6)		;Signal
 .nolview
-
+	ENDC
 		bsr	init_code
 
 		bsr	ClearCache
@@ -1132,7 +1177,9 @@ enter_vbr	movem.l	d0-a6,-(a7)
 		tst.w	proc_type
 		bne.b	.no68000
 
-;		move.l	#newirq,$6c.w
+	IFNE CARTRIDGE
+		move.l	#newirq,$6c.w
+	ENDC
 
 		bra.b	.ok68000
 
@@ -1146,18 +1193,22 @@ enter_vbr	movem.l	d0-a6,-(a7)
 
 *************************************************************
 
-exit_vbr	tst.w	proc_type
+exit_vbr
+		tst.w	proc_type
 		bne.b	.no68000
 
-;		move.l	backup_vbr+$6c,$6c.w
+	IFNE CARTRIDGE
+		move.l	backup_vbr+$6c,$6c.w
+	ENDC
 
+	IFEQ CARTRIDGE
 		lea.l	$60.w,a0
 		lea.l	except_entry0(pc),a1
 		moveq	#7-1,d0
 .loop0		move.l	a1,(a0)+
 		addq.l	#4,a1
 		dbf	d0,.loop0
-
+	ENDC
 		bra.b	.ok68000
 
 .no68000	move.l	vbr_reg,a0
@@ -1165,6 +1216,7 @@ exit_vbr	tst.w	proc_type
 		movec	a0,vbr
 	MC68000
 
+	IFEQ CARTRIDGE
 		tst.b	config_RM
 		bne.b	.okRM
 		tst.b	config_key
@@ -1175,9 +1227,12 @@ exit_vbr	tst.w	proc_type
 		moveq	#7-1,d0
 .loop		move.l	a1,(a0)+
 		dbf	d0,.loop
-
-.ok68000	move.l	vbr_reg,a0
+	ENDC
+.ok68000
+	IFEQ CARTRIDGE
+		move.l	vbr_reg,a0
 		move.l	#monitor,$7c(a0)
+	ENDC
 		rts
 
 *************************************************************
@@ -1260,14 +1315,16 @@ test_CPU	movem.l	d1/d5-d7/a2-a5,-(a7)
 
 save_custom	movem.l	d0/a0-a4,-(a7)
 
-;		lea.l	Action_CUST,a0
+	IFNE CARTRIDGE
+		lea.l	UAE_CUSTOM,a0
 		lea.l	custom,a1
 		move.l	a1,a4
-;		move.w	#$200/8-1,d0
-;.copy		move.l	(a0)+,(a1)+
-;		move.l	(a0)+,(a1)+
-;		dbf	d0,.copy
-
+		move.w	#$200/8-1,d0
+.copy		move.l	(a0)+,(a1)+
+		move.l	(a0)+,(a1)+
+		dbf	d0,.copy
+	ENDC
+		lea.l	custom,a4
 		move.w	$2(a6),d0
 		move.w	d0,2(a4)
 		or.w	#$8000,d0
@@ -1291,6 +1348,7 @@ save_custom	movem.l	d0/a0-a4,-(a7)
 
 		move.l	OldRaster,$4(a4)	;VPOSR,VHPOSR
 
+	IFEQ CARTRIDGE
 		lea.l	$a(a6),a0
 		lea.l	$a(a4),a1
 		moveq	#9-1,d0
@@ -1299,7 +1357,7 @@ save_custom	movem.l	d0/a0-a4,-(a7)
 
 		move.w	$7c(a6),$7c(a4)		;LISAID
 		move.w	$1da(a6),$1da(a4)	;HHPOSR
-
+	ENDC
 	;	moveq	#0,d0
 	;	jsr	analyse_copper
 
@@ -1311,20 +1369,23 @@ save_custom	movem.l	d0/a0-a4,-(a7)
 restore_custom	movem.l	d0/a1,-(a7)
 		lea.l	custom,a1
 
-		;move.l	$20(a1),$20(a6)		;DISKPTR
+	IFNE CARTRIDGE
+		move.l	$20(a1),$20(a6)		;DISKPTR
+		move.w	$34(a1),$34(a6)		;POTGO
+		move.w	$1e4(a1),$1e4(a6)	;DIWHIGH
+		move.l	$e0(a1),$e0(a6)		;BPL1PT
+		move.w	$10c(a1),$10c(a6)	;BPLCON4
+		move.w	$102(a1),$102(a6)	;BPLMOD1
+	ENDC
 		move.w	$7e(a1),$7e(a6)		;DSKSYNC
 		move.w	$9e(a1),$9e(a6)		;ADKCON
-		;move.w	$34(a1),$34(a6)		;POTGO
 		move.w	$1dc(a1),$1dc(a6)	;BEAMCON0
-		;move.w	$1e4(a1),$1e4(a6)	;DIWHIGH
 		move.l	$8e(a1),$8e(a6)		;diwstrt/stop
 		move.l	$92(a1),$92(a6)		;ddfstrt/stop
-		;move.l	$e0(a1),$e0(a6)		;BPL1PT
 		move.w	$1fc(a1),$1fc(a6)	;FMODE
 		move.l	$108(a1),$108(a6)	;BPL1MOD
 		move.w	$106(a1),$106(a6)	;BPLCON3
 		move.l	$100(a1),$100(a6)	;BPLCON0
-		;move.w	$10c(a1),$10c(a6)	;BPLCON4
 
 		move.w	$96(a1),$96(a6)		;DMACON
 		move.w	$9c(a1),$9c(a6)		;INTREQ
@@ -5843,7 +5904,7 @@ cmd_fi		bsr	evaluate
 		RELOC_PIC
 		move.l	d6,a0			;ev_line
 		moveq	#%111,d0	;upper case, d $address, indirect
-		bsr	disassemble
+		jsr	disassemble
 
 		move.l	d6,a0
 		bsr	print			;print disas. line
@@ -5975,6 +6036,9 @@ cmd_kill	st	escape
 ;-------------- REBOOT ------------------------------------
 
 cmd_reboot
+	IFNE CARTRIDGE
+		rts
+	ELSE
 		bsr	remove_pic
 
 		move.l	$4.w,a0
@@ -6113,6 +6177,7 @@ cool		movem.l	d1-a6,-(a7)
 
 		rte
 	MC68000
+	ENDC
 
 ;-------------- restart program at address ------
 

@@ -25,6 +25,11 @@ the following commands are currently available:
 	write whdload's coredumps and returns to workbench
 	(there is no stackframe cleanup!)
 
+ WI	- whdload info
+	shows the WHDLoad version and size of chip memory used, if WHDLoad
+	has version >= 16.6 it shows also start, end and size of expansion
+	memory (only if expmem is used)
+
  WL	name start - load file into memory
 	does the same as command L and has the same parameters
 	the actual directory is that from the slave (or ws_CurrentDir if used)
@@ -39,5 +44,5 @@ the following keys are currently available:
 
  Alt + PrtSc	dumps the actual screen as "RAM:hrtmon-screen.txt"
 
-Wepl 01.09.2001 (wepl@whdload.de)
+Wepl 03.02.2006 (wepl@whdload.de)
 
