@@ -1,0 +1,2206 @@
+@database HRTmon.guide
+@wordwrap
+@author "Alain Malek (Hornet of Alcatraz)"
+## Dec 27, 1998
+## This is a doc file in the amigaguide.library format.
+## HRTmon docs v2.29
+
+##-------------------------------------------------------------------
+
+@Node Main "HRTmon documentation"
+
+                        HRTmon v2.29 Documentation
+
+                            @{" Introduction " Link Introduction}
+                            @{" Requirements " Link Requirements}
+                            @{" Installation " Link Installation}
+                            @{" FAQ          " Link FAQ}
+
+                            @{"  * Usage *   " Link Usage}
+
+                     @{" Disclaimer and Author Info " Link Disclaimer}
+                     @{" Thanks to ...              " Link Thanks}
+                     @{" The future                 " Link Future}
+                     @{" History                    " Link History}
+
+                   look out for the latest version at:
+                http://dumbo.cryogen.ch/hrtmon/index.html
+
+@EndNode
+
+##-------------------------------------------------------------------
+
+@Node Introduction "HRTmon/Introduction"
+
+                             HRTmon
+
+                    Copyright © 1991 - 1998
+                      All Rights Reserved
+                           Written by
+                          Alain  Malek
+
+
+Have you ever wanted to get an Action Replay on your A1200, A3000 or A4000 ?
+If the answer is yes, then you should have a look at HRTmon.
+
+HRTmon is a monitor for your Amiga, which doesn't use the libraries.
+You can invoke the monitor at any point. Even if a game or a demo switched
+off the interrupts.
+Once in HRTmon you can watch all the memory, disassemble, edit, save, etc...
+(Have a look at the @{"commands list" Link Commands}).
+and continue, as if nothing happend.
+You don't have to care about any picture address. ALL the CHIP-memory can
+be edited transparently.
+
+To work perfectly HRTmon requires a 'magic' @{"level7 button" Link Level7}.
+(This button is recommended but you can use HRTmon without it.)
+
+HRTmon is now free, and released under the GNU General Public License (GPL)
+(see: http://www.gnu.org)
+visit the HRTmon web site at: http://dumbo.cryogen.ch/hrtmon/index.html
+
+@EndNode
+
+##-------------------------------------------------------------------
+
+@Node Requirements "HRTmon/Requirements"
+
+                 @{b}REQUIREMENTS@{ub}
+
+Any Amiga with Kickstart 2.0 (or greater).
+68000 - 68060 processor.
+A @{"level7 interrupt button" Link Level7}. (Recommended)
+
+Tested on:
+
+- A1200
+- MC68020,MC68060
+- Kickstarts 39
+- 2.0MB CHIPRAM, 0 - 16MB FASTRAM
+
+Note:
+
+- HRTmon won't work with tools like Enforcer.
+  To get a complete control over the system, HRTmon HAS to access the
+  exception vectors memory, which will generate lots of Enforcer-hits.
+
+If you find any bugs under your configuration, please contact me
+(address in the @{" Disclaimer and Author Info " Link Disclaimer} section).
+@EndNode
+
+##-------------------------------------------------------------------
+
+@Node Installation "HRTmon/Installation"
+
+                 @{b}INSTALLATION@{ub}
+
+Simply copy these files in the same drawer.
+
+hrtmon.data
+HRTmonPrefs
+HRTmonPrefs.info
+HRTmon.guide
+HRTmon.guide.info
+HRTmon		(this file can also be copied in c: for example)
+
+Copy libs/reqtools.library to your libs: directory.
+ (If you don't have it already).
+
+@EndNode
+
+##-------------------------------------------------------------------
+
+@Node Usage "HRTmon/Usage"
+
+                           @{b}USAGE@{ub}
+
+                   @{" HRTmon             " Link HRTmon}
+                   @{" HRTmonPrefs        " Link HRTmonPrefs}
+                   @{" Floppy disk launch " Link Floppy}
+
+                   @{" Enter HRTmon       " Link Enter}
+                   @{" The editor         " Link Editor}
+                   @{" The tracer         " Link cmd_f7}
+                   @{" Commands list      " Link Commands}
+
+                   @{" Remove HRTmon      " Link Remove}
+
+@EndNode
+
+##-------------------------------------------------------------------
+
+@Node HRTmon "HRTmon/Usage/HRTmon"
+
+                           @{b}HRTmon@{ub}
+
+This program will launch HRTmon and use the preferences selected
+in the @{"HRTmonPrefs" Link HRTmonPrefs} program.
+It will try to load the HRTmon.data file from the current directory,
+if it fails it will look into the HRTmonPrefs directory.
+
+Usage: HRTmon -r
+
+       -r : only remove HRTmon if found in memory (no installation)
+
+@EndNode
+
+##-------------------------------------------------------------------
+
+@Node cmd_f7 "HRTmon/Usage/Tracer"
+
+                           @{b}Tracer@{ub}
+
+- You can enter the tracer by pressing the F7 key.
+
+- To get out of the tracer just press F7 again
+
+- To trace one single instruction press the right-arrow.
+
+- To trace a BSR or a JSR instruction without tracing all the sub-routine
+  press the down-arrow. (The sub-routine will be executed but not traced.)
+
+@EndNode
+
+##-------------------------------------------------------------------
+
+@Node Editor "HRTmon/Usage/Editor"
+
+                        @{b}The Editor@{ub}
+
+@{b}General:@{ub}
+
+- When you enter HRTmon, you get directly in the editor.
+
+- If the keyboard doesn't respond, just press your right-mouse button, to
+  reinit the CIA. (HRTmon doesn't do it automatically, to avoid modifying
+  some read-only registers.)
+
+- The editor has 2 different pages. You can toggle between those two
+  pages by pressing F10
+
+- To execute a command, you just have to type the command on any line
+  and press return to validate it.
+
+- To repeat the same command without any parameter just press RETURN.
+  (Usefull when disassembling or dumping memory.)
+
+- Escape sets the cursor to the begin of the next line.
+
+- Use the arrows keys to move the cursor arround the screen and scroll up
+  and down into disassembled code, hex dump etc...
+
+- The editor can work in 2 modes: insert-mode ON or OFF.
+  When the insert-mode is OFF, you can still insert some blank spaces, by
+  pressing Tab or SHIFT+Del.
+
+- To insert a whole line press ALT+Tab.
+
+- To clear a single line, press SHIFT+backspace.
+
+- To remove a whole line press ALT+Del.
+
+- The mouse can move the 'snap cursor'. When you click on a word
+  with the 'snap cursor', the word will be copied at the actual 'real cursor'
+  position.
+
+@{b}History:@{ub}
+
+- If you need to enter a command you used before, just press CTRL+arrow-up
+  or CTRL+arrow-down to get the last commands you have executed.
+
+@{b}Expression:@{ub}
+
+- Each time you have to enter a number in a command, you can also enter
+  an expression.
+
+- You can use a register in an expression.
+
+  Examples: h a0+4
+            d pc
+
+- Use:
+         %    for binary
+         $    for hexadecimal
+         #    for decimal (default, in @{"hexlock" Link cmd_hexlock} you have to use it)
+         \\   as prefix for cpu-registers (may mostly be omitted,
+              in hex mode d0-a7 require it)
+         [..] for indirect addressing
+
+  Example: h [4] will display the ExecBase structure.
+
+- You can specify a size to each number you enter by using an extension.
+  .b for byte
+  .w for word (16 bits)
+  .l for longword (32 bits)
+
+  for example:
+
+	$134.l
+
+  This is usefull for functions like memory search or trainer.
+
+- To enter a string with spaces use : '
+
+  Example:  s 'mod.blue light' $40000 $50000
+
+
+
+@EndNode
+
+##-------------------------------------------------------------------
+
+@Node Floppy "HRTmon/Usage/Floppy"
+
+                        @{b}Floppy@{ub}
+
+  To launch HRTmon from a floppy disk you have to create a boot-disk
+  with @{"HRTmonPrefs" Link HRTmonPrefs}.
+
+  This boot-disk makes possible to debug games or demos using 'NON-DOS'
+  disks. (have also a look at the 'reboot' command)
+
+
+  You have to do the following :
+
+  - Boot the HRTmon disk.
+  - When the screen flashs insert the disk you want to debug.
+  - Press the left-mouse button to enter HRTmon.
+    You are now debuging the boot-block of the disk you inserted.
+
+@EndNode
+
+##-------------------------------------------------------------------
+
+@Node HRTmonPrefs "HRTmon/Usage/HRTmonPrefs"
+
+                        @{b}HRTmonPrefs@{ub}
+
+@{b}Starting HRTmonPrefs:@{ub}
+
+  Type HRTmonPrefs from the CLI or simply click on the HRTmonPrefs icon.
+
+@{b}HRTmonPrefs options:@{ub}
+
+   @{b}Address@{ub}
+         Enter the address where you want HRTmon to be located.
+         This address must be entered in hexadecimal.
+         If you don't have any idea where to locate HRTmon then type in this
+         address: $1d0000
+
+   @{b}Repeat key delay@{ub}
+         Change the repeat key delay of HRTmon. (Default = 15)
+
+   @{b}AllocABS@{ub}
+         When HRTmon is installed the memory used will automatically be
+         allocated through the AllocABS function of exec.library.
+         This behaviour can be turned off by this switch.
+
+   @{b}AutoAlloc@{ub}
+         If you don't want to specify yourself the address field just
+         activate this option. HRTmon will try to find out by itself the
+         best address. (This option works at best with Kickstart 3.0 or higher,
+         but you can also use it with Kickstart lower than 3.0)
+
+   @{b}Insert mode as default@{ub}
+         Editor will use 'insert' mode as default. (You can still toggle
+         the mode with the F2 key)
+
+   @{b}Right-Mouse Enter@{ub}
+         Select this option if you want to enter HRTmon by pressing on
+         your right mouse button. If you don't select this option or the
+         the Key Enter option, then the only way to enter HRTmon will be
+         the @{"level7 button" Link level7}.
+
+   @{b}Key Enter@{ub}
+         Select this option if you want to enter HRTmon by pressing on
+         the backslash key (on US keyboard). This key is located next to
+         the backspace key just over the return.
+
+   @{b}IDE hardisk@{ub}
+         Select this option if you have an A1200 or A4000 with an IDE
+         harddisk and you want to access this disk from HRTmon.
+         Have also a look at the @{"HD WARNINGS" Link HDwarnings}.
+
+   @{b}LoadView Task@{ub}
+         If selected a special task will be added to restore special
+         screens correctly (gfx boards, or non 15khz display)
+         The LoadView call can't be done from an interrupt routine
+         (here HRTmon), that's why it uses an additional system task.
+
+   @{b}Keyboard@{ub}
+         Select the keyboard you want to use in HRTmon.
+
+   @{b}No VBR move@{ub}
+         Do not relocate the vbr if it was previously set to zero.
+         (if VBR isn't zero, HRTmon never relocates the VBR)
+
+   @{b}Hex mode@{ub}
+         Activate by default the @{"hexadecimal mode " Link cmd_hexlock}.
+
+   @{b}Make Boot-Disk@{ub}
+         Click this button to create a disk which will load HRTmon at
+         'address', and allows you to boot from another disk.
+         (See @{" Floppy disk launch " Link Floppy})
+
+   @{b}Install@{ub}
+         After having checked the Address, and AllocABS options click on
+         this button to install HRTmon in memory.
+
+
+@{b}Saving HRTmonPrefs options:@{ub}
+
+  Select 'Save' in the preferences menu.
+
+@EndNode
+
+##-------------------------------------------------------------------
+
+@Node HDwarnings "HRTmon/HD warnings"
+
+                        @{b}Hard Disk Warnings !@{ub}
+
+When accessing a partition from HRTmon you have to follow the following
+rule:
+
+- After having saved a file to your harddisk using HRTmon. You should
+  perform a RESET of your computer before accessing this partition again
+  from the AmigaDOS or Workbench side. But you can perform as many access
+  you want from HRTmon.
+
+  If you don't follow this rule you might corrupt the files saved from
+  HRTmon and you will need to perform a repair of your partition using
+  Disksalv of QuarterBackTools or any similar program, but you won't loose
+  any file already on your HD !
+
+  Instead of reseting your computer you can also perform a 'diskchange' of
+  the partition. (This is an AmigaDOS command)
+
+example:
+
+	Get into a Shell or the CLI and type:
+
+		DiskChange hd0:
+
+  So the AmigaDOS will see the modifications of the disk made by HRTmon.
+
+@EndNode
+
+##-------------------------------------------------------------------
+
+@Node Enter "HRTmon/Usage/Enter"
+
+                        @{b}ENTER@{ub}
+
+ To enter HRTmon, simply press your @{"level7" Link Level7} button or
+ the right-mouse button if you have selected the Right-Mouse Enter in
+ @{"HRTmonPrefs" Link HRTmonPrefs} or the BackSlash key also depending
+ of your settings in @{"HRTmonPrefs" Link HRTmonPrefs}.
+
+ If the @{b}keyboard@{ub} doesn't work in HRTmon press the @{b}right@{ub}
+ mouse button. (It shouldn't happen very often.)
+
+@{b}HINTS:@{ub}
+
+ HRTmon uses the VBR register to get transparent.
+ If you can't enter a demo or game, than try to trace the startup-code
+ and modify every instruction concerning the VBR instruction.
+
+@EndNode
+
+##-------------------------------------------------------------------
+
+@Node Commands "HRTmon/Usage/Commands"
+
+                        @{b}COMMANDS@{ub}
+
+ @{b}List of commands :@{ub}
+
+               @{"r       " Link cmd_r} view or edit CPU registers
+               @{"a       " Link cmd_a} assemble 680x0
+               @{"d       " Link cmd_d} disassemble/assemble 680x0
+               @{"h       " Link cmd_h} hex dump/modify memory
+               @{"n       " Link cmd_n} ascII dump of memory
+               @{"e       " Link cmd_e} dump/modify custom registers
+               @{"type    " Link cmd_type} type from memory
+               @{"c       " Link cmd_c} copy memory
+               @{"q       " Link cmd_q} compare memory
+               @{"o       " Link cmd_o} fill memory
+               @{"ce      " Link cmd_ce} exchange memory
+               @{"f       " Link cmd_f} find
+               @{"fi      " Link cmd_fi} find instruction
+               @{"fs      " Link cmd_fs} find string
+               @{"cop     " Link cmd_cop} find copperlist
+               @{"p       " Link cmd_p} enter the graphic searcher
+               @{"b       " Link cmd_b} set or remove breakpoint (view all)
+               @{"bj      " Link cmd_bj} set or remove JSR breakpoint
+               @{"bd      " Link cmd_bd} remove all breakpoints
+               @{"mw      " Link cmd_mw} set/remove/view memory watch
+               @{"mwd     " Link cmd_mwd} delete all memory watch
+               @{"t       " Link cmd_t} trace
+               @{"ta      " Link cmd_ta} trace till address reached
+               @{"debug   " Link cmd_debug} switch debug mode on/off
+               @{"drive   " Link cmd_drive} change current drive
+               @{"motor   " Link cmd_motor} switch drive motor on
+               @{"format  " Link cmd_format} format FFS disk
+               @{"qformat " Link cmd_qformat} quick format FFS disk
+               @{"diskchk " Link cmd_diskchk} check a floppy disk
+               @{"ide     " Link cmd_ide} get information from IDE drives
+               @{"part    " Link cmd_part} list all partitions
+               @{"dir     " Link cmd_dir} dir
+               @{"cd      " Link cmd_cd} change current directory
+               @{"l       " Link cmd_l} load file
+               @{"s       " Link cmd_s} save file
+               @{"sp      " Link cmd_sp} save the actual picture
+               @{"makedir " Link cmd_makedir} makedir
+               @{"del     " Link cmd_del} delete a file
+               @{"copy    " Link cmd_copy} copy a file
+               @{"rs      " Link cmd_rs} read sectors from disk
+               @{"ws      " Link cmd_ws} write sectors to disk
+               @{"bb      " Link cmd_bb} calculate boot-block checksum
+               @{"la      " Link cmd_la} load all
+               @{"sa      " Link cmd_sa} save all
+               @{"sac     " Link cmd_sac} save all compressed
+               @{"d2f     " Link cmd_d2f} read a floppy and save it as a file
+               @{"f2d     " Link cmd_f2d} read a file and save it as a floppy
+               @{"ts      " Link cmd_ts} trainer start
+               @{"tsd     " Link cmd_tsd} deep trainer start
+               @{"tf      " Link cmd_tf} trainer find
+               @{"output  " Link cmd_output} redirect output to memory
+               @{"af      " Link cmd_af} assemble 65816
+               @{"df      " Link cmd_df} disassemble 65816
+               @{"fif     " Link cmd_fif} find instruction 65816
+               @{"clear   " Link cmd_empty} clear all memory and reboot
+               @{"reboot  " Link cmd_empty} reboot and keep HRTmon resident
+               @{"pal     " Link cmd_empty} set PAL display
+               @{"ntsc    " Link cmd_empty} set NTSC display
+               @{"31k     " Link cmd_31k} set 31Khz display (Productivity,...)
+               @{"led     " Link cmd_empty} switch power led on/off
+               @{"?       " Link cmd_eval} evaluate expression
+               @{"excep   " Link cmd_empty} show exception vectors
+               @{"x       " Link cmd_x} exit HRTmon
+               @{"kill    " Link cmd_kill} kill HRTmon
+               @{"hexlock " Link cmd_hexlock} choose dec/hex as default
+
+
+ @{b} List of special keys :@{ub}
+
+               @{"F1  " Link cmd_empty} clear screen
+               @{"F2  " Link cmd_empty} toggle insert mode on/off
+               @{"F6  " Link cmd_empty} toggle 65802/65816 CPU mode (for disassemble)
+               @{"F7  " Link cmd_f7} enter and exit tracer
+               @{"F10 " Link cmd_empty} toggle betwen page 1 and 2
+               @{"ESC " Link cmd_empty} break the actual command
+               @{"HELP" Link cmd_empty} show commands list
+
+ @{b} See also :@{ub} @{"The Editor" Link Editor}
+
+@EndNode
+
+##-------------------------------------------------------------------
+
+@Node cmd_31k "HRTmon/Usage/Commands/CMD_31K"
+
+               @{b}CMD_31K : Set 31khz display@{ub}
+
+@{b}Syntax:@{ub}
+                   31K
+
+
+@{b}Notes:@{ub}
+
+- If you have stopped a program which runs on a Productivity, Euro72,
+  DblPal, DblNtsc screen you can restore the display correctly by
+  using this command.
+
+@EndNode
+
+##-------------------------------------------------------------------
+
+@Node cmd_d2f "HRTmon/Usage/Commands/CMD_D2F"
+
+               @{b}CMD_D2F : Disk to file@{ub}
+
+@{b}Syntax:@{ub}
+                   D2F filename
+
+@{b}Description:@{ub}
+
+- Read all sectors from a 880K floppy disk and write it to a file.
+
+@{b}Notes:@{ub}
+
+- Can also be used to generate .adf file for UAE
+
+@EndNode
+
+##-------------------------------------------------------------------
+
+@Node cmd_f2d "HRTmon/Usage/Commands/CMD_F2D"
+
+               @{b}CMD_F2D : File to disk@{ub}
+
+@{b}Syntax:@{ub}
+                   F2D filename
+
+@{b}Description:@{ub}
+
+- Write all sectors from a 880K floppy disk with data from a file.
+  (the opposite of the @{"D2F" Link cmd_d2f} command)
+
+@EndNode
+
+##-------------------------------------------------------------------
+
+@Node cmd_fs "HRTmon/Usage/Commands/CMD_FS"
+
+               @{b}CMD_FS : Find String@{ub}
+
+@{b}Syntax:@{ub}
+                   fs start end 'string'
+
+@{b}Parameters:@{ub}
+
+start  = start address of search
+end    = end address of search
+string = string to search
+
+@{b}Notes:@{ub}
+
+- The search isn't case sensitive.
+
+@EndNode
+##-------------------------------------------------------------------
+
+@Node cmd_e "HRTmon/Usage/Commands/CMD_E"
+
+               @{b}CMD_E : dump/edit custom registers @{ub}
+
+@{b}Syntax:@{ub}
+                   e offset [newval]
+
+@{b}Parameters:@{ub}
+
+offset = offset of custom register ($100 <=> $dff100)
+newval = new value for the custom register
+
+@{b}Notes:@{ub}
+
+- This command replaces the old cmd_esc (for HRTmon 1.x users)
+
+@EndNode
+
+##-------------------------------------------------------------------
+
+@Node cmd_diskchk "HRTmon/Usage/Commands/CMD_DISKCHK"
+
+                      @{b}CMD_DISKCHK : check disk@{ub}
+
+@{b}Description:@{ub}
+
+- Check a floppy disk for errors
+
+@{b}Syntax:@{ub}
+                   diskchk
+
+@{b}Notes:@{ub}
+
+- Use the @{"DRIVE" Link cmd_drive} command to check a disk in df1:
+
+@EndNode
+
+##-------------------------------------------------------------------
+
+@Node cmd_r "HRTmon/Usage/Commands/CMD_R"
+
+                        @{b}CMD_R : registers@{ub}
+
+@{b}Description:@{ub}
+
+- View the processor registers, or modify a register.
+
+@{b}Syntax:@{ub}
+                   r
+or                 r reg val
+
+@{b}Parameters:@{ub}
+
+reg = name of register to modify.
+val = new value for the register.
+
+@{b}Notes:@{ub}
+
+- register RTS shows you the return address if a RTS is executed.
+  if the PC points on a RTE instruction, you will see the 'RTE address'.
+
+@EndNode
+
+##-------------------------------------------------------------------
+
+@Node cmd_a "HRTmon/Usage/Commands/CMD_A"
+
+                        @{b}CMD_A : assemble@{ub}
+
+@{b}Description:@{ub}
+
+- Assemble MC680X0 code into memory.
+
+@{b}Syntax:@{ub}
+                   a address instruction
+
+@{b}Parameters:@{ub}
+
+address     = address where the instruction must be assembled.
+instruction = MC68000-MC68040/FPU/MMU instruction.
+
+@{b}Notes:@{ub}
+
+- You have to enter the instruction with the new syntax.
+
+       Example:         move.l d0,(4,a0)  correct
+                        move.l d0,4(a0)   incorrect
+
+                        move.l d0,($40000) correct
+                        move.l d0,$40000   incorrect
+
+         - You have to enter the instructions in their original forme.
+
+       Example:         cmpi.w #4,d0       correct
+                        cmp.w #4,d0        incorrect
+
+- If the assemble command succeeds it will automatically print 'a nextaddress'
+  on the next line.
+  If you want to stop assembling just press return.
+  Otherwise type in the next instruction.
+
+- You can also use the @{"D" Link cmd_d} command.
+
+@EndNode
+
+##-------------------------------------------------------------------
+
+@Node cmd_d "HRTmon/Usage/Commands/CMD_D"
+
+               @{b}CMD_D : disassemble / assemble@{ub}
+
+@{b}Description:@{ub}
+
+- Disassemble (or assemble) MC680X0 code from memory.
+
+@{b}Syntax:@{ub}
+                   d address [instr]
+
+@{b}Parameters:@{ub}
+
+address     = address of the 680x0 code to disassemble.
+
+@{b}Notes:@{ub}
+
+- 8 instructions from 'address' will be disassembled and printed.
+
+@EndNode
+
+##-------------------------------------------------------------------
+
+@Node cmd_h "HRTmon/Usage/Commands/CMD_H"
+
+                        @{b}CMD_H : hex dump@{ub}
+
+@{b}Description:@{ub}
+
+- Dump memory in hex and ascII, or edit memory.
+
+@{b}Syntax:@{ub}
+
+                   h address                               ;hex dump
+
+or                 h address val.x val.x val.x ...         ;modify memory
+
+or                 h address 'string'                      ;modify memory
+
+@{b}Parameters:@{ub}
+
+address = address of the memory to dump or to modify
+val     = new values to write in memory.
+x       = size of val = b,w,l (default: w)
+
+@{b}Examples:@{ub}
+
+         h $40000 10.b $140.w $12345678.l
+         h $50000 'HRTmon'
+
+
+@EndNode
+
+##-------------------------------------------------------------------
+
+@Node cmd_n "HRTmon/Usage/Commands/CMD_N"
+
+                        @{b}CMD_N : ascII dump@{ub}
+
+@{b}Description:@{ub}
+
+- Dump memory in ascII only.
+
+@{b}Syntax:@{ub}
+
+                   n address
+
+@{b}Parameters:@{ub}
+
+address = address of the memory to dump.
+
+@EndNode
+
+##-------------------------------------------------------------------
+
+@Node cmd_type "HRTmon/Usage/Commands/CMD_TYPE"
+
+                        @{b}CMD_TYPE@{ub}
+
+@{b}Description:@{ub}
+
+- Type a text in memory in the editor.
+
+@{b}Syntax:@{ub}
+
+                   type address
+
+@{b}Parameters:@{ub}
+
+address = address of the memory to type.
+
+@{b}Notes:@{ub}
+
+- the memory will be printed in the editor.
+  A zero will stop the command.
+
+@EndNode
+
+##-------------------------------------------------------------------
+
+@Node cmd_c "HRTmon/Usage/Commands/CMD_C"
+
+                        @{b}CMD_C@{ub}
+
+@{b}Description:@{ub}
+
+- Copy a block of memory.
+
+@{b}Syntax:@{ub}
+
+                   c start end dest
+
+@{b}Parameters:@{ub}
+
+start = start address of the block to copy.
+end   = end address of the block to copy.
+dest  = destination address for the block.
+
+@EndNode
+
+##-------------------------------------------------------------------
+
+@Node cmd_q "HRTmon/Usage/Commands/CMD_Q"
+
+                        @{b}CMD_Q@{ub}
+
+@{b}Description:@{ub}
+
+- Compare two blocks of memory to see if they are equals.
+
+@{b}Syntax:@{ub}
+
+                   q start end start2
+
+@{b}Parameters:@{ub}
+
+start  = start address of the block to compare.
+end    = end address of the block to compare.
+start2  = start address of the 2nd block to compare with the first one.
+
+@{b}Notes:@{ub}
+
+- If the two blocks are different, the address of the first byte different
+  from the 2nd block will be printed.
+
+- If the two areas are equal, the following message will be printed:
+  'Equal areas.'
+
+@EndNode
+
+##-------------------------------------------------------------------
+
+@Node cmd_o "HRTmon/Usage/Commands/CMD_O"
+
+                        @{b}CMD_O@{ub}
+
+@{b}Description:@{ub}
+
+- Fill the memory with the same byte.
+
+@{b}Syntax:@{ub}
+
+                   o start end val
+
+@{b}Parameters:@{ub}
+
+start  = start address of the block to fill.
+end    = end address of the block to fill.
+val    = value used to fill the block.
+
+@{b}Notes:@{ub}
+
+- 'val' can only be a byte. (If you enter a word or a long it will be
+  truncated to a byte.)
+
+@EndNode
+
+##-------------------------------------------------------------------
+
+@Node cmd_ce "HRTmon/Usage/Commands/CMD_CE"
+
+                        @{b}CMD_CE@{ub}
+
+@{b}Description:@{ub}
+
+- Exchange two blocks of memory.
+
+@{b}Syntax:@{ub}
+
+                   ce start end dest
+
+@{b}Parameters:@{ub}
+
+start = start address of the block to exchange.
+end   = end address of the block to exchange.
+dest  = destination address for the exchange.
+
+@{b}Notes:@{ub}
+
+- The two areas will be exchanged.
+
+@EndNode
+
+##-------------------------------------------------------------------
+
+@Node cmd_f "HRTmon/Usage/Commands/CMD_F"
+
+                        @{b}CMD_F@{ub}
+
+@{b}Description:@{ub}
+
+- Find a sequence of bytes,words,longs in memory.
+
+@{b}Syntax:@{ub}
+
+                   f start end val.x val.x ...
+
+@{b}Parameters:@{ub}
+
+start = start address for the search.
+end   = end address for the search.
+val   = value to find.
+x     = size (b,w,l)
+
+@{b}Examples:@{ub}
+
+         f $f80000 $f90000 $4ef9.w $f800d2.l
+
+@EndNode
+
+##-------------------------------------------------------------------
+
+@Node cmd_fi "HRTmon/Usage/Commands/CMD_FI"
+
+                        @{b}CMD_FI@{ub}
+
+@{b}Description:@{ub}
+
+- Search for a string in the disassembled (MC680X0) code.
+
+@{b}Syntax:@{ub}
+
+                   fi start end 'string'
+
+@{b}Parameters:@{ub}
+
+start  = start address for the search.
+end    = end address for the search.
+string = string to find.
+
+@{b}Notes:@{ub}
+
+- don't forget to use the new Motorola syntax.
+- you can use the * character to replace any character.
+- you can also find relative address as the fa command of the
+  ActionReplay
+
+@{b}Examples:@{ub}
+
+         fi $f80000 $f90000 '9a,a*)'
+
+         will find for example:
+
+         MOVE.W #$7FFF,($9A,A4)
+
+
+@EndNode
+
+##-------------------------------------------------------------------
+
+@Node cmd_p "HRTmon/Usage/Commands/CMD_P"
+
+                        @{b}CMD_P@{ub}
+
+@{b}Description:@{ub}
+
+- Enter the graphic searcher
+
+@{b}Syntax:@{ub}
+
+                   p picno
+
+@{b}Parameters:@{ub}
+
+  picno (optional parameter)
+
+@{b}Notes:@{ub}
+
+- First use the @{"COP" Link cmd_cop} command to find
+  the right copper-list, then use this command
+
+- F10 or ESC  : exit this mode.
+- arrows keys : to move unlocked plans
+- Shift       : Fast move
+- 1-8         : Lock, Unlock plans
+- M           : Increase modulo
+- N           : Decrease modulo
+- ,           : Clear modulo
+- Q           : Decrease picture width
+- W           : Increase picture width
+- A           : Decrease picture height
+- S           : Increase picture height
+- R           : Set all bitplans to the same address
+- H           : Toggle HAM mode on/off
+- Help        : Switch info panel on/off
+- Del         : Change colors of info panel
+- F1          : Start / stop set height mode
+
+@EndNode
+
+##-------------------------------------------------------------------
+@Node cmd_b "HRTmon/Usage/Commands/CMD_B"
+
+                        @{b}CMD_B@{ub}
+
+@{b}Description:@{ub}
+
+- Set or remove an Illegal breakpoint.
+
+@{b}Syntax:@{ub}
+
+                   b address                ;set,remove breakpoint
+
+or                 b                        ;view all breakpoints
+
+@{b}Parameters:@{ub}
+
+address = address of the breakpoint to set or remove.
+
+@EndNode
+
+##-------------------------------------------------------------------
+@Node cmd_bj "HRTmon/Usage/Commands/CMD_BJ"
+
+                        @{b}CMD_BJ@{ub}
+
+@{b}Description:@{ub}
+
+- Set or remove a JSR breakpoint.
+
+@{b}Syntax:@{ub}
+
+                   bj address               ;set,remove JSR breakpoint
+
+or                 bj                       ;view all breakpoints
+
+@{b}Parameters:@{ub}
+
+address = address of the breakpoint to set or remove.
+
+@{b}Notes:@{ub}
+
+- Will enter the monitor with a JSR instruction.
+  Don't forget that it will modify 6 bytes in memory to put a JSR.
+
+- This feature was implemented for Amigas without a VBR register. (68000)
+  It doesn't need to modify the illegal instruction exception vector.
+  Use @{"b " Link cmd_b} command instead.
+
+@EndNode
+
+##-------------------------------------------------------------------
+@Node cmd_bd "HRTmon/Usage/Commands/CMD_BD"
+
+                        @{b}CMD_BD@{ub}
+
+@{b}Description:@{ub}
+
+- Remove all breakpoints set by {"b " Link cmd_b} or {"bj " Link cmd_bj}.
+
+@{b}Syntax:@{ub}
+
+                   bd
+
+@{b}Notes:@{ub}
+
+- All breakpoints will be removed.
+
+@EndNode
+
+##-------------------------------------------------------------------
+@Node cmd_mw "HRTmon/Usage/Commands/CMD_MW"
+
+                        @{b}CMD_MW@{ub}
+
+@{b}Description:@{ub}
+
+- set/remove/view memory watch
+  Will switch in trace mode until the watched memory is modified.
+
+@{b}Syntax:@{ub}
+
+                   mw              (view all memory watch)
+                   mw   address    (set a 'byte' memory watch)
+                   mw.b address    (set a 'byte' memory watch)
+                   mw.w address    (set a 'word' memory watch)
+                   mw.l address    (set a 'long' memory watch)
+                   mw   address    (remove a single memory watch)
+
+@{b}Notes:@{ub}
+
+- Programs will slowdown a lot.
+- It won't trace interrupt routines.
+
+
+@EndNode
+
+##-------------------------------------------------------------------
+@Node cmd_mwd "HRTmon/Usage/Commands/CMD_MWD"
+
+                        @{b}CMD_MWD@{ub}
+
+@{b}Description:@{ub}
+
+- Remove all memory watch.
+
+@{b}Syntax:@{ub}
+
+                   mwd
+
+
+@EndNode
+
+##-------------------------------------------------------------------
+@Node cmd_t "HRTmon/Usage/Commands/CMD_T"
+
+                        @{b}CMD_T@{ub}
+
+@{b}Description:@{ub}
+
+- Trace one or more instructions.
+
+@{b}Syntax:@{ub}
+
+                   t                        ;trace 1 instruction
+
+or                 t nbsteps                ;trace nbsteps instructions
+
+@{b}Parameters:@{ub}
+
+nbsteps = nb of instructions to trace without entering in the monitor.
+
+@EndNode
+
+##-------------------------------------------------------------------
+@Node cmd_ta "HRTmon/Usage/Commands/CMD_TA"
+
+                        @{b}CMD_TA@{ub}
+
+@{b}Description:@{ub}
+
+- Trace till a specific address is reached.
+
+@{b}Syntax:@{ub}
+
+                   ta address               ;trace 1 instruction
+
+@{b}Parameters:@{ub}
+
+address = when the processor reaches this address, it will activate the
+          monitor.
+
+@{b}Notes:@{ub}
+
+- This function is usefull when you want to put a breakpoint in a ROM.
+- Warning ! This function will slow-down your computer, as each instruction
+  will be traced until the address is reached.
+- Be carfull when the processor switchs from User mode, to Supervisor !
+
+@EndNode
+
+##-------------------------------------------------------------------
+@Node cmd_debug "HRTmon/Usage/Commands/CMD_DEBUG"
+
+                        @{b}CMD_DEBUG@{ub}
+
+@{b}Description:@{ub}
+
+- Intercept some exceptions.
+
+@{b}Syntax:@{ub}
+
+                   debug                    ;switch on/off debug mode
+
+@{b}Notes:@{ub}
+
+- When in debug mode. The monitor will be invoked when one of the following
+  exceptions is raised.
+
+  Bus Error
+  Address Error
+  Illegal Instruction
+  Divide by Zero
+  LINE-A
+  LINE-F
+
+@EndNode
+
+##-------------------------------------------------------------------
+@Node cmd_drive "HRTmon/Usage/Commands/CMD_DRIVE"
+
+                        @{b}CMD_DRIVE@{ub}
+
+@{b}Description:@{ub}
+
+- View or set the actual drive number.
+
+@{b}Syntax:@{ub}
+
+                   drive                    ;view actual drive no
+
+or                 drive no                 ;change drive no
+
+@{b}Parameters:@{ub}
+
+no = no of the drive to use for disk operations. (0-3)
+
+@{b}Notes:@{ub}
+
+- All disk operations will take place on that drive.
+
+@EndNode
+
+##-------------------------------------------------------------------
+@Node cmd_motor "HRTmon/Usage/Commands/CMD_MOTOR"
+
+                        @{b}CMD_MOTOR@{ub}
+
+@{b}Description:@{ub}
+
+- Switch the drive motor on.
+
+@{b}Syntax:@{ub}
+
+                   motor
+
+
+@EndNode
+
+##-------------------------------------------------------------------
+@Node cmd_format "HRTmon/Usage/Commands/CMD_FORMAT"
+
+                        @{b}CMD_FORMAT@{ub}
+
+@{b}Description:@{ub}
+
+- Format a floppy disk in FFS.
+
+@{b}Syntax:@{ub}
+
+                   format diskname
+
+@{b}Parameters:@{ub}
+
+diskname = name for the disk. Default = HRTmon
+
+@{b}Notes:@{ub}
+
+- The disk will be formatted in FFS.
+- Use the @{"DRIVE" Link cmd_drive} command to format a disk
+  in df1:
+
+@EndNode
+
+##-------------------------------------------------------------------
+@Node cmd_qformat "HRTmon/Usage/Commands/CMD_QFORMAT"
+
+                        @{b}CMD_QFORMAT@{ub}
+
+@{b}Description:@{ub}
+
+- Quick format a floppy disk.
+
+@{b}Syntax:@{ub}
+
+                   qformat diskname
+
+@{b}Parameters:@{ub}
+
+diskname = name for the disk. Default = HRTmon
+
+@{b}Notes:@{ub}
+
+- The disk will be quick formatted in FFS.
+- This command won't work properly if the disk as never been formatted
+  in any Amiga format. (First use @{"format" Link cmd_format})
+- Use the @{"DRIVE" Link cmd_drive} command to format a disk
+  in df1:
+
+@EndNode
+
+##-------------------------------------------------------------------
+@Node cmd_dir "HRTmon/Usage/Commands/CMD_DIR"
+
+                        @{b}CMD_DIR@{ub}
+
+@{b}Description:@{ub}
+
+- View the contents of the actual directory.
+
+@{b}Syntax:@{ub}
+
+                   dir
+
+or                 dir name
+
+@{b}Parameters:@{ub}
+
+name = name of the directory to list.
+
+@{b}Notes:@{ub}
+
+- use @{"cd " Link cmd_cd} command to change the current directory.
+
+@EndNode
+
+##-------------------------------------------------------------------
+@Node cmd_cd "HRTmon/Usage/Commands/CMD_CD"
+
+                        @{b}CMD_CD@{ub}
+
+@{b}Description:@{ub}
+
+- Change current directory.
+
+@{b}Syntax:@{ub}
+
+                   cd path
+
+@{b}Parameters:@{ub}
+
+path = path of the future current directory
+
+@{b}Examples:@{ub}
+
+  cd hd0:c
+
+  cd df0:
+
+
+@{b}Notes:@{ub}
+
+- To go to the parent directory type :  cd /
+
+@EndNode
+
+##-------------------------------------------------------------------
+@Node cmd_l "HRTmon/Usage/Commands/CMD_L"
+
+                        @{b}CMD_L@{ub}
+
+@{b}Description:@{ub}
+
+- Load a binary file into memory.
+
+@{b}Syntax:@{ub}
+
+                   l name address
+
+@{b}Parameters:@{ub}
+
+name    = name of the file to load from disk.
+address = destination address for the file.
+
+@EndNode
+
+##-------------------------------------------------------------------
+@Node cmd_s "HRTmon/Usage/Commands/CMD_S"
+
+                        @{b}CMD_S@{ub}
+
+@{b}Description:@{ub}
+
+- Save a block of memory to disk.
+
+@{b}Syntax:@{ub}
+
+                   s name start end
+
+@{b}Parameters:@{ub}
+
+name    = name of the file to save to disk.
+start   = start address of the block to save.
+end     = end address of the block to save.
+
+
+   Have also a look at the @{"HD WARNINGS" Link HDwarnings}.
+
+@EndNode
+
+##-------------------------------------------------------------------
+@Node cmd_makedir "HRTmon/Usage/Commands/CMD_MAKEDIR"
+
+                        @{b}CMD_MAKEDIR@{ub}
+
+@{b}Description:@{ub}
+
+- Create a new directory.
+
+@{b}Syntax:@{ub}
+
+                   makedir name
+
+@{b}Parameters:@{ub}
+
+name = name of the new directory to create.
+
+@EndNode
+
+##-------------------------------------------------------------------
+@Node cmd_rs "HRTmon/Usage/Commands/CMD_RS"
+
+                        @{b}CMD_RS@{ub}
+
+@{b}Description:@{ub}
+
+- Read some sectors from disk.
+
+@{b}Syntax:@{ub}
+
+                   rs address startsec nbsec
+
+@{b}Parameters:@{ub}
+
+address  = address where you want to load the sectors.
+startsec = first sector you want to load.
+nbsec    = nb of sectors from startsec you want to load.
+
+@EndNode
+
+##-------------------------------------------------------------------
+@Node cmd_ws "HRTmon/Usage/Commands/CMD_WS"
+
+                        @{b}CMD_WS@{ub}
+
+@{b}Description:@{ub}
+
+- Write some sectors to disk.
+
+@{b}Syntax:@{ub}
+
+                   ws address startsec nbsec
+
+@{b}Parameters:@{ub}
+
+address  = address from where you want to save.
+startsec = first sector of the disk to save.
+nbsec    = nb of sectors from startsec you want to save.
+
+@EndNode
+
+##-------------------------------------------------------------------
+@Node cmd_la "HRTmon/Usage/Commands/CMD_LA"
+
+                        @{b}CMD_LA@{ub}
+
+@{b}Description:@{ub}
+
+- Load all. (See @{"sa" Link cmd_sa})
+
+@{b}Syntax:@{ub}
+
+                   LA
+
+@{b}Notes:@{ub}
+
+- You will be asked to enter the disks you used for @{"sa " Link cmd_sa}.
+- As all registers can't be read. This function won't work 100%.
+- To get the best results do the following.
+  1st load the programm you want to restore.
+  2nd when you are in the programm use the LA command.
+  By this way all custom registers will be already initialized properly.
+
+@EndNode
+
+##-------------------------------------------------------------------
+@Node cmd_sa "HRTmon/Usage/Commands/CMD_SA"
+
+                        @{b}CMD_SA@{ub}
+
+@{b}Description:@{ub}
+
+- Save all. (Save memory, registers, etc... to disks.)
+  It is usefull if you want to save a game which doesn't have a 'save game'
+  option.
+
+@{b}Syntax:@{ub}
+
+                   SA
+
+@{b}Notes:@{ub}
+
+- You will be asked to enter multiple disks if not saving onto a HD.
+- As all registers can't be read. This function won't work 100%.
+- See @{"la " Link cmd_la} command to see how to restore the programm.
+- Warning ! Only the CHIP memory from $0 to $200000 will be saved.
+  So, if you want to use this command you will have to switch off your
+  FAST-RAM.
+
+- Have also a look at the @{"HD WARNINGS" Link HDwarnings}.
+
+@EndNode
+
+##-------------------------------------------------------------------
+@Node cmd_sac "HRTmon/Usage/Commands/CMD_SAC"
+
+                        @{b}CMD_SAC@{ub}
+
+@{b}Description:@{ub}
+
+- Crunch and save all. (Save memory, registers, etc... to disks.)
+  It is usefull if you want to save a game which doesn't have a 'save game'
+  option.
+
+@{b}Syntax:@{ub}
+
+                   SAC
+
+@{b}Notes:@{ub}
+
+- You will be asked to enter multiple disks if not saving onto a HD.
+- As all registers can't be read. This function won't work 100%.
+- See @{"la " Link cmd_la} command to see how to restore the programm.
+- Warning ! Only the CHIP memory from $0 to $200000 will be saved.
+  So, if you want to use this command you will have to switch off your
+  FAST-RAM.
+
+- Have also a look at the @{"HD WARNINGS" Link HDwarnings}.
+
+@EndNode
+
+##-------------------------------------------------------------------
+@Node cmd_ts "HRTmon/Usage/Commands/CMD_TS"
+
+                        @{b}CMD_TS@{ub}
+
+@{b}Description:@{ub}
+
+- Start the trainer process.
+  It will save all address containg a specific value (the actual number of
+  lives you have) in a buffer.
+
+@{b}Syntax:@{ub}
+
+                   ts start end val.x
+
+@{b}Parameters:@{ub}
+
+start = start of the memory block you want to search.
+end   = end of the memory block.
+val   = the value you want to search. (number of lives)
+x     = b or w or l
+
+@{b}Notes:@{ub}
+
+- After having used this command, continue your game and loose one life.
+  Then enter HRTmon and use the @{"tf " Link cmd_tf} command.
+
+@EndNode
+
+##-------------------------------------------------------------------
+@Node cmd_tsd "HRTmon/Usage/Commands/CMD_TSD"
+
+                        @{b}CMD_TSD@{ub}
+
+@{b}Description:@{ub}
+
+- Start the trainer process in deep mode
+  It will save all address containg a specific value (the actual number of
+  lives you have +- 1) in a buffer.
+
+@{b}Syntax:@{ub}
+
+                   tsd start end val.x
+
+@{b}Parameters:@{ub}
+
+start = start of the memory block you want to search.
+end   = end of the memory block.
+val   = the value you want to search. (number of lives)
+x     = b or w or l
+
+@{b}Notes:@{ub}
+
+- After having used this command, continue your game and loose one life.
+  Then enter HRTmon and use the @{"tf " Link cmd_tf} command.
+
+
+@EndNode
+
+##-------------------------------------------------------------------
+@Node cmd_tf "HRTmon/Usage/Commands/CMD_TF"
+
+                        @{b}CMD_TF@{ub}
+
+@{b}Description:@{ub}
+
+- Contine the trainer process.
+  It will check if the address contained in the trainer buffer
+  have the value given in parameter.
+  If it's the case the address will be printed.
+  Only the printed address will remain in the trainer buffer, so you
+  can repeat the same procedure, to track step by step the exact address.
+
+@{b}Syntax:@{ub}
+
+                   tf start end val
+
+@{b}Parameters:@{ub}
+
+start = start of the memory block you want to search.
+end   = end of the memory block.
+val   = the value you want to search. (new number of lives)
+
+@{b}Notes:@{ub}
+
+- If there are too many address, continue your game and loose one life.
+  Then enter HRTmon and use the @{"tf " Link cmd_tf} command again.
+
+@EndNode
+
+##-------------------------------------------------------------------
+@Node cmd_output "HRTmon/Usage/Commands/CMD_OUTPUT"
+
+                        @{b}CMD_OUTPUT@{ub}
+
+@{b}Description:@{ub}
+
+- Makes a copy of all outputs of HRTmon in memory.
+
+@{b}Syntax:@{ub}
+
+                   output address                ;start output
+
+or                 output                        ;stop output
+
+@{b}Parameters:@{ub}
+
+address = address where you want to redirect the output of HRTmon.
+
+@EndNode
+
+##-------------------------------------------------------------------
+@Node cmd_af "HRTmon/Usage/Commands/CMD_AF"
+
+                        @{b}CMD_AF@{ub}
+
+@{b}Description:@{ub}
+
+- assemble 65816 code in memory.
+
+@{b}Syntax:@{ub}
+
+                   af address string
+
+@{b}Parameters:@{ub}
+
+address = address where the code must be assembled.
+string  = code to assemble.
+
+@{b}Parameters:@{ub}
+
+- I don't remember if this function was 100% finished.
+  As I never use it, I don't care...  (Ask me if you really need it)
+
+@EndNode
+
+##-------------------------------------------------------------------
+@Node cmd_df "HRTmon/Usage/Commands/CMD_DF"
+
+                        @{b}CMD_DF@{ub}
+
+@{b}Description:@{ub}
+
+- disassemble 65816 code from memory.
+
+@{b}Syntax:@{ub}
+
+                   df address
+
+@{b}Parameters:@{ub}
+
+address = address to disassemble
+
+@{b}Notes:@{ub}
+
+- Use the F6 key to toggle the 8/16 bit mode.
+
+@EndNode
+
+##-------------------------------------------------------------------
+
+@Node cmd_fif "HRTmon/Usage/Commands/CMD_FIF"
+
+                        @{b}CMD_FIF@{ub}
+
+@{b}Description:@{ub}
+
+- Search for a string in the disassembled (65816) code.
+
+@{b}Syntax:@{ub}
+
+                   fif start end 'string'
+
+@{b}Parameters:@{ub}
+
+start  = start address for the search.
+end    = end address for the search.
+string = string to find.
+
+@{b}Notes:@{ub}
+
+- you can use the * character to replace any character.
+
+@EndNode
+
+##-------------------------------------------------------------------
+@Node cmd_cop "HRTmon/Usage/Commands/CMD_COP"
+
+                        @{b}CMD_COP@{ub}
+
+@{b}Description:@{ub}
+
+- Find the actual copper-list.
+
+@{b}Syntax:@{ub}
+
+                   cop start end
+
+@{b}Parameters:@{ub}
+
+start = start of the range to search.
+end   = end of the range to search.
+
+@{b}Notes:@{ub}
+
+- This command can take some time if the copper-list is very long...
+
+@EndNode
+
+##-------------------------------------------------------------------
+@Node cmd_eval "HRTmon/Usage/Commands/CMD_?"
+
+                        @{b}CMD_?@{ub}
+
+@{b}Description:@{ub}
+
+- Evaluate an expression.
+
+@{b}Syntax:@{ub}
+
+                   ? expression
+
+@{b}Parameters:@{ub}
+
+expression = expression to evaluate.
+
+@{b}Notes:@{ub}
+
+- use the '$' character to enter an hexadecimal value.
+- use the '%' character to enter a binary value.
+- use the '#' character to enter a decimal value.
+- you can use any register in the expression. In hex mode you require
+  the prefix '\\' for d0-a7.
+
+   Example:
+   ? a0+d0*4
+   ? \\pc+a0+#80*2   ;in dec mode a0 is the register, in hex mode its a value
+
+- use the '[' and ']' characters to enter an indirect address.
+
+@EndNode
+
+##-------------------------------------------------------------------
+@Node cmd_x "HRTmon/Usage/Commands/CMD_X"
+
+                        @{b}CMD_X@{ub}
+
+@{b}Description:@{ub}
+
+- Exit HRTmon
+
+@{b}Syntax:@{ub}
+
+                   x
+
+@EndNode
+
+##-------------------------------------------------------------------
+@Node cmd_kill "HRTmon/Usage/Commands/CMD_KILL"
+
+                        @{b}CMD_KILL@{ub}
+
+@{b}Description:@{ub}
+
+- Kill and exit HRTmon
+
+@{b}Syntax:@{ub}
+
+                   kill
+
+@EndNode
+
+##-------------------------------------------------------------------
+
+@Node cmd_hexlock "HRTmon/Usage/Commands/CMD_HEXLOCK"
+
+                        @{b}CMD_HEXLOCK : hexlock (on|off)@{ub}
+
+@{b}Description:@{ub}
+
+- Switches hexadecimal mode as default instead of decimal.
+
+@{b}Syntax:@{ub}
+
+                   hexlock on                  ;sets hex mode on
+                   hexlock off                 ;switches dec mode on
+
+@{b}Notes:@{ub}
+
+In decimal mode you may omit # and \\.
+In hexadecimal mode you may omit $, but require \\ on cpu-registers d0-a7
+and, of course, a # before decimal numbers.
+
+@EndNode
+
+##-------------------------------------------------------------------
+@Node cmd_ide "HRTmon/Usage/Commands/CMD_IDE"
+
+                        @{b}CMD_IDE@{ub}
+
+@{b}Description:@{ub}
+
+- Display IDE HardDisk information
+
+@{b}Syntax:@{ub}
+
+                   ide
+
+@{b}Notes:@{ub}
+
+- You need an A1200 or an A4000 to access a HardDisk.
+- You need to activate the IDE option in @{"HRTmonPrefs" Link HRTmonPrefs}.
+- Read @{"HD WARNINGS" Link HDwarnings} before accessing your HardDisk.
+
+@EndNode
+
+##-------------------------------------------------------------------
+@Node cmd_part "HRTmon/Usage/Commands/CMD_PART"
+
+                        @{b}CMD_PART@{ub}
+
+@{b}Description:@{ub}
+
+- Display a list of accessible disks and partitions.
+
+@{b}Syntax:@{ub}
+
+                   part
+
+@{b}Notes:@{ub}
+
+- You need an A1200 or an A4000 to access a HardDisk.
+- You need to activate the IDE option in @{"HRTmonPrefs" Link HRTmonPrefs}.
+- Read @{"HD WARNINGS" Link HDwarnings} before accessing your HardDisk.
+
+@EndNode
+
+##-------------------------------------------------------------------
+@Node cmd_sp "HRTmon/Usage/Commands/CMD_SP"
+
+                        @{b}CMD_SP@{ub}
+
+@{b}Description:@{ub}
+
+- Save the actual picture of the graphic searcher (@{"P" Link cmd_p} command)
+  in IFF format.
+
+@{b}Syntax:@{ub}
+
+                   sp filename
+
+@EndNode
+
+##-------------------------------------------------------------------
+
+@Node cmd_empty "HRTmon/Usage/Commands/"
+
+@{b}This function doesn't need any comments !@{ub}
+
+@EndNode
+
+##-------------------------------------------------------------------
+
+@Node Remove "HRTmon/Usage/Remove"
+
+                        @{b}REMOVE@{ub}
+
+- To remove HRTmon just run @{"HRTmonPrefs" Link HRTmonPrefs}.
+  HRTmon will be automatically located and removed.
+
+- You can also use the @{"KILL" Link cmd_kill} command.
+
+@EndNode
+
+##-------------------------------------------------------------------
+
+@Node Level7 "HRTmon/Level7"
+
+                        @{b}LEVEL7 BUTTON@{ub}
+
+ HRTmon needs a special hardware to work properly.
+ (If you don't have it you can still use HRTmon with the 'right-mouse enter'
+  or the 'key-enter' options of @{"HRTmonPrefs" Link HRTmonPrefs})
+
+ You will have to add a level7 button to your Amiga (if you don't have it
+ already). This button will also work with other software as ASMOne.
+
+ This button will generate a level7 (Non maskable interrupt) on you Amiga.
+ When you press this button, you will immediatly enter HRTmon.
+
+ Don't be afraid if you are not an electronics specialist ! It's very easy
+ if you know soldering.
+ (If you can't do it, just ask some friends. I'm sure you know someone
+ who will be able to do it.)
+
+ @{b}Material needed :@{ub}
+
+ - 1 button.
+ - some  wires.
+ - 3 diodes 1N4148 or any other equivalent.
+
+
+ Here is the @{b}schematics@{ub} of this button:
+
+ @{b}IPL0@{ub} -------- @{b}>|@{ub} ------\
+                        |
+ @{b}IPL1@{ub} -------- @{b}>|@{ub} --------------- @{b}button@{ub} ------- @{b}GND@{ub}
+                        |
+ @{b}IPL2@{ub} -------- @{b}>|@{ub} ------/
+
+ @{b}>|@{ub} = diode.
+
+ @{b}IPL0 IPL1 IPL2@{ub} signals can be found  on pin 83-82-81 of the expansion
+ port of the A1200.
+
+@EndNode
+
+##-------------------------------------------------------------------
+
+@Node Disclaimer "HRTmon/Disclaimer and Author Info"
+                    @{b}HRTmon Information@{ub}
+
+HRTmon Amiga system monitor
+Copyright (C) 1991-1998 Alain Malek Alain.Malek@cryogen.com
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You can find the full GNU GPL online at: http://www.gnu.org
+
+Please send your comments, wishes and bug reports for HRTmon to:
+
+         Alain Malek
+         Bonne-Esperance 1
+         1006 Lausanne
+         SWITZERLAND
+
+Or by email:
+
+         Alain.Malek@cryogen.com
+
+Please remember to state the version number you are using, in all
+correspondance.
+
+@EndNode
+
+##-------------------------------------------------------------------
+
+@Node Thanks "HRTmon/Thanks to..."
+                       @{b}Thanks to ...@{ub}
+
+- Nico Francois for his great reqtools library.
+- Carnivore/BeerMacht for the assembler and disassembler functions.
+  First I did my own routines, but only for 68000, and I was too lazy to
+  add the 68020-68040,FPU,MMU instructions. So I took his routines from
+  BeerMon and adapted them to HRTmon.
+- Roberto Marra, sCREEM/cRUX, SHANE, Jean-Francois Fabre, Henry Sopko
+  for beta-testing and new ideas.
+- Pablo d'Angelo for his help in finding the cpu detection bug.
+
+- And all the people who registred HRTmon !
+
+@EndNode
+
+##-------------------------------------------------------------------
+
+@Node Future "HRTmon/Future"
+                       @{b}The Future@{ub}
+
+- Add play-sound command (no one seems to need it, till now...)
+- Add breakpoint option in the tracer.
+- Add saving of FASTRAM to SA/LA commands.
+- Address access breakpoint by using the MMU
+- Trap write-only registers with MMU
+- PPC assembling/disassembling
+
+- Any good idea from you :)
+
+@EndNode
+
+##-------------------------------------------------------------------
+
+@Node FAQ "HRTmon/FAQ"
+                    @{b}FAQ (Frequently Asked Questions)@{ub}
+
+1 - I can't find a FA command ?
+
+    Use the @{"FI" Link cmd_fi} command instead. Finding relative
+    addresses is just one aspect of this powerfull command.
+
+2 - HRTmon doesn't restore the display of my game correctly ?
+
+    I can't do anything against this. The problem is due to some
+    write-only registers which can't be restored.
+    To get the correct display mode you can try to change the default
+    values of some custom registers as BPLCON0 ($100),
+    BPLMOD0 ($108), FMODE ($1fc) by using the @{"E" Link cmd_e} command.
+
+3 - HRTmon doesn't restore my Productivity, Euro72, DblPal, DblNtsc, ...
+    (or gfx board) screen ?
+
+    Again this is due to some write-only registers which can't be
+    restored.
+    You can solve this problem by using the @{"31K" Link cmd_31k} command,
+    or use the LoadView option of HRTmonPrefs.
+
+
+@EndNode
+
+##-------------------------------------------------------------------
+
+@Node History "HRTmon/History"
+                       @{b}History@{ub}
+
+version 2.30 Jul 04 2006
+
+- assembler directives added to assemble special cartridge version to be
+  used with UAE (Toni Wilen)
+- some docs cleanup (Wepl)
+
+version 2.29 Jan 03 2006
+
+- whdload command WI added (Wepl)
+
+version 2.28 Mar 14 2005 (Psygore/Wepl)
+
+- disassembler fixed for negative absolut word adressing modes
+
+version 2.27 Mar 07 2005 (Bertrand JARDEL/Wepl)
+
+- better whdload compatibility with 68030 (CACR modification removed)
+- better support for whdload's SNOOP mode (no longer checks for additional
+  drives if called from WHDLoad)
+
+version 2.25 Dec 27 1998
+
+- some whdload specific commands added (Bert Jahn)
+  see readme-whdload.txt
+
+version 2.24 Nov 18 1998
+
+- documentation update (hexlock, AR3 keys, d2f and f2d)
+- new hexmode option in HRTmonPrefs to activate hexlock by default
+
+version 2.23 Nov 10 1998
+
+more compatible with ActionReplay 3 behaviour (all done by Achim Haertel)
+
+- new command: hexlock on/off (lets enter hex numbers without prefix,
+  registers d0-a7 require a \\ as prefix)
+- tab - insert blank
+- alt+tab insert blank line
+- alt+del remove line
+- esc cursor to first row of next line, nothing executed
+
+version 2.22 Oct 8 1998
+
+- copper search fix
+- unexpected exceptions are ignored (may be triggered by some level7 buttons)
+
+version 2.21 Jul 18 1998
+
+- memory watch command added
+- level2 interrupt not used anymore, to avoid freeze with extension cards
+  (pcmcia, ethernet, scsi, etc...)
+- option -r added to the HRTmon command (for removing HRTmon)
+- HRTmonPrefs fixed and Kickstart 2.0 compatible
+- no more crash when unknown command entered
+
+version 2.20 Jul 16 1998
+
+- German keymap fix (Bert Jahn)
+- copper search fix
+- vbr relocation changed
+- support for 68000 and 68010
+- HRTmon command doesn't use reqtools anymore
+- config file format changed
+- new 'no vbr move' option in HRTmonPrefs
+- command crash detection and recover system added
+
+version 2.19 Jun 29 1998
+
+- some WHDLoad adaptation (Bert Jahn)
+- better excep command  (Bert Jahn)
+- display HRTmon entry reason (Bert Jahn)
+- file Lock fix in HRTmon command (Bert Jahn)
+- gfx-ripper info pannel fix
+- copper search routine fix
+
+version 2.18 Jun 23 1998
+
+- hd partition detection fixed
+- floppy disk access fixed when in multiscan mode
+- mmu related problem fixed
+
+version 2.17 Jun 12 1998
+
+- source code clean-up
+- PhxAss support (v4.39alpha or better)
+- BASM support (Bert Jahn)
+- disable PCMCIA interrupts when in HRTmon. (avoid freeze)
+
+version 2.16 Jun 4 1998 (9th public release)
+
+- first source code release under GPL
+
+version 2.15 25 Apr 1998
+
+- EHB (halfbright) support in gfx-ripper
+
+version 2.14 9 Jan 1998 (8th public release)
+
+- support for CD32 ProModule IDE interface
+- faster copper list search (cmd COP)
+- support for NTSC and Multiscan screen modes
+- configuration fileformat changed, users of v2.13 or prior should
+  save a new config from HRTmonPrefs
+
+version 2.13 6 Nov 1997 (7th public release)
+
+- level 7 a little bit more powerfull
+- better IDE HD support
+- trainer functions fixed
+
+version 2.12 16 Jun 1997 (6th public release)
+
+- 68060 instructions added
+- 68060 register display
+
+version 2.1 22 May 1997 (5th public release)
+
+- 'Snap cursor' added in editor window
+- new status bar
+- no output on screen when switching insert mode on/off
+- '#' key was missing on French keyboard
+- command history invoked through CTRL-up/down keys
+- use SHIFT-up/down to scroll faster in memory dump
+- Garbage on screen with some 040 machines fixed
+- help page doesn't scroll further when HELP key released
+- 31K command added
+- Bug in disk bitmap allocation removed. (got a disk full msg too early)
+- Bug in CPU detection routine removed. (failed on 68020 boards with FPU)
+- LoadView task option added in HRTmonPrefs (gfx-board compatible)
+
+version 2.00 24 Nov 1996 (4th public release)
+
+- IDE hard-disk access (A1200 and A4000 only)
+- Support for International FileSystem
+- Works on 68020-68060
+- A4000 bug fixed
+- Scroll up and down for disassembly, mem dump, etc...
+- New powerfull gfx searcher and ripper
+- Save picture command
+- Improved floppy disk access
+- HRTmon can be entered by pressing a key
+- Auto memory location
+- Some more preferences
+- Completly rewritten file access routines
+- New HRTmon program launcher
+- Lots of small usefull commands added...
+
+version 1.20 2 May 1995 (3rd public release)
+
+- SETMAP command removed.
+- Now you select your keyboard from HRTmonPrefs
+- Added MMU option in HRTmonPrefs
+- Added Clock option in HRTmonPrefs
+  (The auto-detection of the clock caused a crash on A3000 and A4000/030 and
+  maybe some other configurations too.)
+
+version 1.10 22 April 1995
+
+- Added KILL command.
+
+version 1.01 10 April 1995 (2nd public release)
+
+- Removed a bug when entering HRTmon. (Sometimes it crashed...)
+- No more crash when exiting HRTmon, after having pressed the right-mouse
+  button in HRTmon (only in 'right-mouse enter' mode.)
+- Now the debug command should work correctly.
+
+version 1.00 2 April 1995
+
+- First public release
+
+@EndNode
+
+##-------------------------------------------------------------------
