@@ -26,9 +26,11 @@ the following commands are currently available:
 	(there is no stackframe cleanup!)
 
  WI	- whdload info
-	shows the WHDLoad version and size of chip memory used, if WHDLoad
-	has version >= 16.6 it shows also start, end and size of expansion
-	memory (only if expmem is used)
+	shows the WHDLoad version and size of chip memory used
+	if WHDLoad has version >= 16.6 it also shows start, end and size
+	of expansion memory (only if expmem is used)
+	if WHDLoad has version >= 16.9 it also shows start, end and size
+	of slave memory
 
  WL	name start - load file into memory
 	does the same as command L and has the same parameters
@@ -44,5 +46,5 @@ the following keys are currently available:
 
  Alt + PrtSc	dumps the actual screen as "RAM:hrtmon-screen.txt"
 
-Wepl 03.02.2006 (wepl@whdload.de)
+Wepl 15.02.2009 (wepl@whdload.de)
 

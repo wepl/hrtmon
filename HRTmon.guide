@@ -3,13 +3,13 @@
 @author "Alain Malek (Hornet of Alcatraz)"
 ## Dec 27, 1998
 ## This is a doc file in the amigaguide.library format.
-## HRTmon docs v2.29
+## HRTmon docs v2.31
 
 ##-------------------------------------------------------------------
 
 @Node Main "HRTmon documentation"
 
-                        HRTmon v2.29 Documentation
+                        HRTmon v2.31 Documentation
 
                             @{" Introduction " Link Introduction}
                             @{" Requirements " Link Requirements}
@@ -2029,6 +2029,10 @@ correspondance.
 
 @Node History "HRTmon/History"
                        @{b}History@{ub}
+
+version 2.31 Feb 15 2009
+
+- whdload command WI improved, shows also slave memory now (Wepl)
 
 version 2.30 Jul 04 2006
 

@@ -1,6 +1,6 @@
 ;APS00000000000000000000000000000000000000000000000000000000000000000000000000000000
 ;
-; $Id: HRTmonV2.s 1.12 2006/02/02 23:51:02 wepl Exp wepl $
+; $Id: HRTmonV2.s 1.13 2006/07/04 12:46:15 wepl Exp wepl $
 ;
 ;HRTmon Amiga system monitor
 ;Copyright (C) 1991-1998 Alain Malek Alain.Malek@cryogen.com
@@ -25,7 +25,7 @@
 *******************************
 
 VER_MAJ equ 2
-VER_MIN equ 30
+VER_MIN equ 31
 	IFND CARTRIDGE		;maybe set via commandline
 CARTRIDGE = 0			;0 = normal mode  1= UAE cartridge mode
 	ENDC
@@ -189,6 +189,8 @@ whd_revision	dc.w 0			;66 revision of WHDLoad
 max_chip	dc.l 0			;68 maximum value for CHIP-RAM
 whd_expstrt	dc.l 0			;72 WHDLoad expmem lower bound
 whd_expstop	dc.l 0			;76 WHDLoad expmem upper bound
+whd_slvstrt	dc.l 0			;80 WHDLoad slave lower bound
+whd_slvstop	dc.l 0			;84 WHDLoad slave upper bound
 		even
 
 		dc.b	"$VER: HRTmon.data "

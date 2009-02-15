@@ -1,4 +1,4 @@
-; $Id: whdload.s 1.5 2001/09/01 20:10:18 wepl Exp wepl $
+; $Id: whdload.s 1.6 2006/02/02 23:51:02 wepl Exp wepl $
 ;
 ; this file contains all whdload related commands
 ;
@@ -364,10 +364,8 @@ cmd_wi		tst.l	(whd_base)
 		bsr	print_hexCR
 
 	;if WHDLoad >= v16.6 print expmem
-		cmp.l	#16<<16+6,(whd_version)
-		blo	w_end
 		move.l	(whd_expstrt),d0
-		beq	w_end
+		beq	.noexp
 		lea	(w_txt_expmem1,pc),a0
 		bsr	print
 		moveq	#8,d1
@@ -381,6 +379,26 @@ cmd_wi		tst.l	(whd_base)
 		bsr	print
 		move.l	(whd_expstop),d0
 		sub.l	(whd_expstrt),d0
+		moveq	#6,d1
+		bsr	print_hexCR
+.noexp
+		
+	;if WHDLoad >= v16.9 print slave
+		move.l	(whd_slvstrt),d0
+		beq	w_end
+		lea	(w_txt_slvmem1,pc),a0
+		bsr	print
+		moveq	#8,d1
+		bsr	print_hex
+		lea	(w_txt_expmem2,pc),a0
+		bsr	print
+		move.l	(whd_slvstop),d0
+		moveq	#8,d1
+		bsr	print_hex
+		lea	(w_txt_expmem3,pc),a0
+		bsr	print
+		move.l	(whd_slvstop),d0
+		sub.l	(whd_slvstrt),d0
 		moveq	#6,d1
 		bsr	print_hexCR
 		
@@ -423,5 +441,6 @@ w_txt_chipmem		dc.b	"chipmem   $000000 -   $",0
 w_txt_expmem1		dc.b	"expmem  $",0
 w_txt_expmem2		dc.b	" - $",0
 w_txt_expmem3		dc.b	" = $",0
+w_txt_slvmem1		dc.b	"slave   $",0
 	EVEN
 
