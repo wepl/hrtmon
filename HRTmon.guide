@@ -3,13 +3,13 @@
 @author "Alain Malek (Hornet of Alcatraz)"
 ## Dec 27, 1998
 ## This is a doc file in the amigaguide.library format.
-## HRTmon docs v2.31
+## HRTmon docs v2.32
 
 ##-------------------------------------------------------------------
 
 @Node Main "HRTmon documentation"
 
-                        HRTmon v2.31 Documentation
+                        HRTmon v2.32 Documentation
 
                             @{" Introduction " Link Introduction}
                             @{" Requirements " Link Requirements}
@@ -2029,6 +2029,21 @@ correspondance.
 
 @Node History "HRTmon/History"
                        @{b}History@{ub}
+
+version 2.32 Sep 13 2009
+
+Toni Wilen:
+- ORG must be before FILE "hrtmon.rom" line
+- ROM start is $A10000
+- moveq #1; rts; and bra.w stuff should probably be kept to keep offset 
+  to configuration variables static between versions
+- first ClearCache must not be called in cart mode because cpu type 
+  isn't detected yet
+- final change is 68000 support
+
+Wepl:
+- whdload command WD corrected when called from User Mode, previousy
+  there were wrong stackpointers
 
 version 2.31 Feb 15 2009
 

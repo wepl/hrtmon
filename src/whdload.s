@@ -1,4 +1,4 @@
-; $Id: whdload.s 1.6 2006/02/02 23:51:02 wepl Exp wepl $
+; $Id: whdload.s 1.7 2009/02/15 21:10:14 wepl Exp wepl $
 ;
 ; this file contains all whdload related commands
 ;
@@ -193,18 +193,27 @@ cmd_wd		move.l	(whd_base),d0
 		sf	entered
 		sf	no_curs
 		bsr	clear_break
-		
-		move.l	(ssp_reg),a1
+
+		btst	#1,(sr_reg)
+		beq	.usermode
+
+.supermode	move.l	(ssp_reg),a1
 		move.w	(6,a1),d1		;frame type
 		and.w	#$f000,d1
 		rol.w	#4,d1
-		move.b	(.tab,pc,d1.w),d1
+		move.b	(.tab,pc,d1.w),d1	;frame length
 		sub.w	#12,a1
 		move.l	a1,(ssp_reg)
 .copy		move.w	(12,a1),(a1)+
 		subq.w	#2,d1
 		bne	.copy
-		move.l	#TDREASON_DEBUG,(a1)+
+		bra	.setargs
+
+.usermode	move.l	(usp_reg),a1
+		sub.w	#12,a1
+		move.l	a1,(usp_reg)
+
+.setargs	move.l	#TDREASON_DEBUG,(a1)+
 		move.l	(pc_reg),(a1)+
 		clr.w	(a1)+
 		move.w	(sr_reg),(a1)

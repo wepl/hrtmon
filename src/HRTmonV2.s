@@ -1,6 +1,6 @@
 ;APS00000000000000000000000000000000000000000000000000000000000000000000000000000000
 ;
-; $Id: HRTmonV2.s 1.13 2006/07/04 12:46:15 wepl Exp wepl $
+; $Id: HRTmonV2.s 1.14 2009/02/15 21:11:15 wepl Exp wepl $
 ;
 ;HRTmon Amiga system monitor
 ;Copyright (C) 1991-1998 Alain Malek Alain.Malek@cryogen.com
@@ -25,12 +25,16 @@
 *******************************
 
 VER_MAJ equ 2
-VER_MIN equ 31
+VER_MIN equ 32
 	IFND CARTRIDGE		;maybe set via commandline
 CARTRIDGE = 0			;0 = normal mode  1= UAE cartridge mode
 	ENDC
 
 ***********************************************************
+
+	IFNE CARTRIDGE
+		ORG $A10000
+	ENDC
 
 	IFD BARFLY
 		MC68030
@@ -95,10 +99,6 @@ OPT_OFF	MACRO
 	ENDC
 	ENDC
 
-	IFNE CARTRIDGE
-		ORG $800000
-	ENDC
-
 ***********************************************************
 
 version	macro
@@ -112,7 +112,7 @@ PICSIZE equ $9800	;size of mem used for bitmap ( > MAX_SCREEN*h*80 )
 MAX_SCREEN equ 52
 
 	IFNE CARTRIDGE
-UAE_CUSTOM	equ $88f000	;saved custom table in uae
+UAE_CUSTOM	equ $A9F000	;saved custom table in uae
 	ENDC
 
 	incdir include:
@@ -145,19 +145,21 @@ RELOC_PIC:	macro
 ***********************************************************
 
 start
-	IFEQ CARTRIDGE
 		moveq	#-1,d0		;not executable
 		rts
-	ENDC
 		dc.b "HRT!"		;4
 
 	OPT_OFF
 	IFEQ CARTRIDGE
 		bra.w	mon_install	;8  jmp to install routine
-	ENDC
 		bra.w	monitor		;12 jmp to monitor
-	IFEQ CARTRIDGE
 		bra.w	mon_remove	;16 jmp to remove routine
+	ELSE
+		nop
+		rts
+		bra.w	monitor		;12 jmp to monitor
+		nop
+		rts
 	ENDC
 	OPT_ON
 mon_size	dc.l 0			;20 size of HRTmon (for FreeMem)
@@ -844,9 +846,8 @@ monitor:	or	#$700,sr	;on 68060 it is granted that the first instruction
 		lea.l	stack,a7		;Own stack
 						;now bsr are allowed
 
-		bsr	ClearCache
-
 	IFEQ CARTRIDGE
+		bsr	ClearCache
 		tst.b	config_lview
 		beq.b	.nolview
 		bsr	exec_here
@@ -6845,7 +6846,12 @@ print_reg	movem.l	d0-d1/a0-a1/a4,-(a7)
 		move.l	a7_reg,a0
 		and.w	#$2000,d0
 		beq.b	no_superv_stack
-		addq.l	#6,a0
+
+		addq.l	#2,a0
+		tst.b	proc_type		;68000 stack frame?
+		beq.b	no_superv_stack
+		addq.l	#4,a0
+
 		move.l	a0,a4
 		bsr	reloc_pic
 		move.w	(a4),d0			;stack frame
