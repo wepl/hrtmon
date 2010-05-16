@@ -3,13 +3,13 @@
 @author "Alain Malek (Hornet of Alcatraz)"
 ## Dec 27, 1998
 ## This is a doc file in the amigaguide.library format.
-## HRTmon docs v2.32
+## HRTmon docs v2.33
 
 ##-------------------------------------------------------------------
 
 @Node Main "HRTmon documentation"
 
-                        HRTmon v2.32 Documentation
+                        HRTmon v2.33 Documentation
 
                             @{" Introduction " Link Introduction}
                             @{" Requirements " Link Requirements}
@@ -2029,6 +2029,11 @@ correspondance.
 
 @Node History "HRTmon/History"
                        @{b}History@{ub}
+
+version 2.33 May 16 2010
+
+- some fixes in the disassembler output (Psygore)
+- readme-whdload.txt corrected (Wepl)
 
 version 2.32 Sep 13 2009
 

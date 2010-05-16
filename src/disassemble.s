@@ -21,7 +21,16 @@
 * Beermon Disassembler modified for HRTmon
 * 68000-68040/FPU/MMU
 
-HRTeval equ -1		;use evaluate routine from HRTmon ? (for assemble)
+;13.06.09	- display negative value in quick move instr. (moveq #$ff,dx -> moveq #-1,dx)
+;		- disassemble immediate byte intr. even if the 1st data byte is not empty
+;		  add/and/cmp/eor/move/ori.b #$??xx,<ea>
+;		  this bug is done when code is generated with old asm prog (ie. seka: move.b #-1,dx)
+;20.02.10	- null offset of bit field instruction will be "0" displayed instead of "32" now
+;		- bchg/bclr/bset/btst #xx,<ea> , bit number is correctly displayed if value > 32
+;		  it still disassembled if bit number > 255, but it adds "??" before it now
+
+;;;HRTeval equ -1		;use evaluate routine from HRTmon ? (for assemble)
+HRTeval equ 0		;use evaluate routine from HRTmon ? (for assemble)
 
 ;s
 ;	lea.l	$f800d2,a4
@@ -618,10 +627,20 @@ dtblregBMON:move.w d3,d0
 
 inibtoeaBMON=*-dissubsBMON
 	move.b #"#",(a0)+
-	move.w (a5)+,d0
-	and.l #%11111,d0		;#0-31(7)
+	moveq	#0,d3
+	move.w (a5)+,d3
+	move.w	#$ff00,d0
+	and.w	d3,d0
+	beq	.ok
+	move.b	#"?",(a0)+
+	move.b	#"?",(a0)+
+	move.l	d3,d0
+	bsr	bytetoa_BMON
+	bra	.1
+.ok	move.l	d3,d0
+;	and.l #%11111,d0		;#0-31(7)  ;line removed
 	bsr.w hextodBMON
-	move.w #$ffc0,d0
+.1	move.w #$ffc0,d0
 	and.w d1,d0
 	cmp.w #$0800,d0		;btst: pcrel allowed
 	beq.b inibea0BMON
@@ -804,12 +823,18 @@ dbfi3BMON:	bsr.w doeaBMON
 	move.b #"{",(a0)+
 	move.w d2,d0
 	lsr.w #6,d0
-	bsr.b dbfi2BMON
+	bsr.b dbfi2aBMON
 	move.b #":",(a0)+
 	move.w d2,d0
 	bsr.b dbfi2BMON
 	move.b #"}",(a0)+
 	rts
+
+dbfi2aBMON:	btst #11-6,d0		;bit field offset
+	bne.b dbfi1BMON
+	and.b #%11111,d0
+	bra.w bytetodBMON	
+
 dbfi2BMON:	btst #11-6,d0
 	bne.b dbfi1BMON
 	and.b #%11111,d0
@@ -895,6 +920,10 @@ imoveqBMON=*-dissubsBMON
 	move.b #"#",(a0)+
 	moveq #0,d0
 	move.b d1,d0
+	bpl	.pos
+	move.b	#"-",(a0)+
+	neg.b	d0
+.pos
 	bsr.w hextoa_BMON			;bsr.w bytetoa_BMON
 	bra.w optodx9bBMON	
 
@@ -1891,7 +1920,12 @@ immediateBMON:
 	tst.b imsizeBMON
 	bne.b imwordBMON
 	cmp.w #$ff,d0
-	bhi.b reservedBMON		;failBMON
+;	bhi.b reservedBMON		;failBMON
+	bls.b	.ok
+	move.b	#"?",(a0)+
+	move.b	#"?",(a0)+
+	and.w	#$ff,d0
+.ok
 	bra.w hextoa_BMON
 imwordBMON:	cmp.b #%001,imsizeBMON
 	bne.b imlongBMON

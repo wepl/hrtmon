@@ -1,6 +1,6 @@
 ;APS00000000000000000000000000000000000000000000000000000000000000000000000000000000
 ;
-; $Id: HRTmonV2.s 1.14 2009/02/15 21:11:15 wepl Exp wepl $
+; $Id: HRTmonV2.s 1.15 2009/09/12 23:09:25 wepl Exp wepl $
 ;
 ;HRTmon Amiga system monitor
 ;Copyright (C) 1991-1998 Alain Malek Alain.Malek@cryogen.com
@@ -25,7 +25,7 @@
 *******************************
 
 VER_MAJ equ 2
-VER_MIN equ 32
+VER_MIN equ 33
 	IFND CARTRIDGE		;maybe set via commandline
 CARTRIDGE = 0			;0 = normal mode  1= UAE cartridge mode
 	ENDC

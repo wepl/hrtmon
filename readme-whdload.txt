@@ -1,6 +1,6 @@
 
 to use the whdload commands whdload version 8.1.1908 or better is required
-moreover in the HrtmonPrefs the option "No VBR move" must be disabled
+moreover in the HrtmonPrefs the option "No VBR move" must be checked
 
 the following commands are currently available:
 
@@ -39,12 +39,10 @@ the following commands are currently available:
  WS	name start end - save memory region to a file
 	does the same as command S and has the same parameters
 	the actual directory is that from the slave (or ws_CurrentDir if used)
-	if you are using FFS it's recommend to save to RAM: to avoid non 
-	validated disks if something goes wrong
 
 the following keys are currently available:
 
  Alt + PrtSc	dumps the actual screen as "RAM:hrtmon-screen.txt"
 
-Wepl 15.02.2009 (wepl@whdload.de)
+Wepl 16.05.2010 (wepl@whdload.de)
 
