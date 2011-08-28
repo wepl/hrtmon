@@ -42,7 +42,10 @@ the following commands are currently available:
 
 the following keys are currently available:
 
- Alt + PrtSc	dumps the actual screen as "RAM:hrtmon-screen.txt"
+ Alt + PrtSc	dumps the actual screen as "hrtmon-screen.txt" in the 
+		directory where the files of the installed program are located
+		(the 'data' directory if set via option or by the slave else
+		the directory where the icon called by is located)
 
-Wepl 16.05.2010 (wepl@whdload.de)
+Wepl 28.08.2011 (wepl@whdload.de)
 

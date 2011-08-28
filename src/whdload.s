@@ -1,4 +1,4 @@
-; $Id: whdload.s 1.7 2009/02/15 21:10:14 wepl Exp wepl $
+; $Id: whdload.s 1.8 2009/09/12 23:09:25 wepl Exp wepl $
 ;
 ; this file contains all whdload related commands
 ;
@@ -164,7 +164,7 @@ key_prtsc	movem.l	d0-d3/a0-a2,-(a7)
 .ret		movem.l	(a7)+,d0-d3/a0-a2
 		rts
 
-.prtsc		dc.b	"ram:hrtmon-screen.txt",0
+.prtsc		dc.b	"hrtmon-screen.txt",0
 
 ;---------------
 ; command WQ -	quit WHDLoad

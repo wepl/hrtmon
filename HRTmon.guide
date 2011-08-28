@@ -3,13 +3,13 @@
 @author "Alain Malek (Hornet of Alcatraz)"
 ## Dec 27, 1998
 ## This is a doc file in the amigaguide.library format.
-## HRTmon docs v2.33
+## HRTmon docs v2.34
 
 ##-------------------------------------------------------------------
 
 @Node Main "HRTmon documentation"
 
-                        HRTmon v2.33 Documentation
+                        HRTmon v2.34 Documentation
 
                             @{" Introduction " Link Introduction}
                             @{" Requirements " Link Requirements}
@@ -2029,6 +2029,14 @@ correspondance.
 
 @Node History "HRTmon/History"
                        @{b}History@{ub}
+
+version 2.34 Aug 28 2011
+
+- the whdload feature to dump the actual screen via the key Alt-PrtSc
+  has been changed to save to "hrtmon-screen.txt" in the directory of
+  the installed program instead of to "RAM:", because starting with
+  WHDLoad version 16.9 it is no longer support to write outside the
+  installed program
 
 version 2.33 May 16 2010
 
