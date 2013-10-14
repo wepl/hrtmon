@@ -1,5 +1,5 @@
 ;
-; $Id: help.s 1.3 2001/09/01 20:10:18 wepl Exp wepl $
+; $Id: help.s 1.4 2006/02/02 23:51:02 wepl Exp wepl $
 ;
 ;HRTmon Amiga system monitor
 ;Copyright (C) 1991-1998 Alain Malek Alain.Malek@cryogen.com
@@ -25,6 +25,7 @@ help_txt
  dc.b "H    address       : hex dump of memory or modify memory",$a
  dc.b "M    address       : hex dump of memory or modify memory",$a
  dc.b "N    address       : ascII dump of memory",$a
+ dc.b "NR   address       : us-rawkey decoded dump of memory",$a
  dc.b "E    offset        : show / edit custom registers",$a
  dc.b "TYPE addr.         : type memory",$a
  dc.b "C    src end dest  : copy a memory block",$a

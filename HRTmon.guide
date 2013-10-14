@@ -3,13 +3,13 @@
 @author "Alain Malek (Hornet of Alcatraz)"
 ## Dec 27, 1998
 ## This is a doc file in the amigaguide.library format.
-## HRTmon docs v2.34
+## HRTmon docs v2.35
 
 ##-------------------------------------------------------------------
 
 @Node Main "HRTmon documentation"
 
-                        HRTmon v2.34 Documentation
+			HRTmon v2.35 Documentation
 
                             @{" Introduction " Link Introduction}
                             @{" Requirements " Link Requirements}
@@ -2029,6 +2029,14 @@ correspondance.
 
 @Node History "HRTmon/History"
                        @{b}History@{ub}
+
+version 2.35 Oct 13 2013 (Wepl)
+
+- new command NR added, it displays memory like the N command but the
+  data is decoded like a rawkey code of the us keyboard map
+- the screen/video init has been changed a bit so that WHDLoad can
+  switch it on each time the monitor is entered between PAL und NTSC
+  mode
 
 version 2.34 Aug 28 2011
 

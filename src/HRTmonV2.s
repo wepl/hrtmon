@@ -1,6 +1,6 @@
 ;APS00000000000000000000000000000000000000000000000000000000000000000000000000000000
 ;
-; $Id: HRTmonV2.s 1.16 2010/05/16 18:19:42 wepl Exp wepl $
+; $Id: HRTmonV2.s 1.17 2011/08/28 18:21:01 wepl Exp wepl $
 ;
 ;HRTmon Amiga system monitor
 ;Copyright (C) 1991-1998 Alain Malek Alain.Malek@cryogen.com
@@ -25,7 +25,7 @@
 *******************************
 
 VER_MAJ equ 2
-VER_MIN equ 34
+VER_MIN equ 35
 	IFND CARTRIDGE		;maybe set via commandline
 CARTRIDGE = 0			;0 = normal mode  1= UAE cartridge mode
 	ENDC
@@ -260,11 +260,7 @@ mon_remove	movem.l	d1-a6,-(a7)
 		rte
 	ENDC
 
-mon_install	movem.l	d1-a6,-(a7)
-
-		lea.l	start(pc),a0
-
-		move.w	#28,screen_height
+mon_setscreen	move.w	#28,screen_height
 		cmp.b	#1,config_screen
 		bne.b	.nontsc
 		move.w	#22,screen_height
@@ -272,7 +268,6 @@ mon_install	movem.l	d1-a6,-(a7)
 		bne.b	.nomulti
 		move.w	#52,screen_height
 .nomulti
-
 		move.w	#MAX_SCREEN,d2
 		sub.w	screen_height,d2
 		mulu	#80,d2
@@ -291,8 +286,15 @@ mon_install	movem.l	d1-a6,-(a7)
 		subq.w	#4,d1
 		move.w	d1,window_bot
 
+		rts
+
+mon_install	movem.l	d1-a6,-(a7)
+
+		lea.l	start(pc),a0
 		move.l	a0,location
 		move.l	a0,location2
+
+		bsr	mon_setscreen
 
 		tst.b	config_hexmode
 		sne	hex_default
@@ -1382,7 +1384,7 @@ restore_custom	movem.l	d0/a1,-(a7)
 	ENDC
 		move.w	$7e(a1),$7e(a6)		;DSKSYNC
 		move.w	$9e(a1),$9e(a6)		;ADKCON
-		move.w	$1dc(a1),$1dc(a6)	;BEAMCON0
+	;	move.w	$1dc(a1),$1dc(a6)	;BEAMCON0
 		move.l	$8e(a1),$8e(a6)		;diwstrt/stop
 		move.l	$92(a1),$92(a6)		;ddfstrt/stop
 		move.w	$1fc(a1),$1fc(a6)	;FMODE
@@ -1544,6 +1546,10 @@ print_status:	movem.l	d0-d3/a0,-(a7)
 
 super		move.w	#$2000,sr		;enable interrupts
 
+		bsr	mon_setscreen
+
+		tst.l	whd_base
+		bne	.okscreen
 		cmp.b	#1,config_screen
 		bne.b	.nontsc
 		move.w	#0,$1dc(a6)		;NTSC mode 15Khz
@@ -2951,6 +2957,8 @@ cmd_list:	dc.b 'R',0,0,0,0,0,0,0
 		dc.l cmd_t,0,0
 		dc.b 'N',0,0,0,0,0,0,0
 		dc.l cmd_n,cmdu_n,cmdd_n
+		dc.b 'NR',0,0,0,0,0,0
+		dc.l cmd_nr,0,0
 		dc.b 'P',0,0,0,0,0,0,0
 		dc.l cmd_p,0,0
 		dc.b '?',0,0,0,0,0,0,0
@@ -7080,6 +7088,60 @@ make_hex_line	movem.l	d0-a4,-(a7)
 		rts
 
 ***************************************************************
+;-------------- rawkey ascII dump (nr) ---------------------
+; it will dump the memory decoded as rawkey for the US keyboard
+cmd_nr
+.seek		move.b	(a0)+,d0
+		beq.b	.ok			;keep last address
+		cmp.b	#$20,d0
+		beq.b	.seek
+		subq.l	#1,a0
+
+		bsr	evaluate		;returns address in d0
+		bne.w	illegal_addr
+		move.l	d0,asc_ptr
+
+.ok		move.l	asc_ptr,a4		;a4=mem ptr
+		move.l	a4,d0
+
+		moveq	#8-1,d3			;print 8 lines
+		lea	board3,a1		;us map without shift
+
+.loop		move.l	a4,d0
+		bsr	reloc_pic
+
+		lea	general_txt,a0
+		move.l	#'nr $',(a0)+
+		moveq	#8,d1
+		bsr	conv_hex		;print address
+
+		addq.l	#8,a0
+		move.b	#' ',(a0)+
+		moveq	#64-1,d2
+.copy		move.b	(a4)+,d0
+		and.w	#$7f,d0
+		cmp.w	#$67,d0
+		bls	.inlist
+		moveq	#$40,d0			;space
+.inlist		move.b	(a1,d0.w),(a0)+
+		bne	.goodkey
+		move.b	#" ",(-1,a0)		;space
+.goodkey	dbf	d2,.copy
+
+		move.b	#10,(a0)+
+		sf	(a0)+
+
+		lea	general_txt,a0
+		bsr	print
+		lea	64(a4),a4
+
+		tst.b	break
+		dbne	d3,.loop
+
+		move.l	a4,asc_ptr
+
+		bra.w	end_command
+
 ;-------------- ascII dump (n) ---------------------
 cmd_n
 seek_para_n	move.b	(a0)+,d0
