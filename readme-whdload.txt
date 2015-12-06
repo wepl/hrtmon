@@ -32,11 +32,11 @@ the following commands are currently available:
 	if WHDLoad has version >= 16.9 it also shows start, end and size
 	of slave memory
 
- WL	name start - load file into memory
+ WLM	name start - load file into memory
 	does the same as command L and has the same parameters
 	the actual directory is that from the slave (or ws_CurrentDir if used)
 
- WS	name start end - save memory region to a file
+ WSM	name start end - save memory region to a file
 	does the same as command S and has the same parameters
 	the actual directory is that from the slave (or ws_CurrentDir if used)
 

@@ -1,6 +1,28 @@
-;APS00000000000000000000000000000000000000000000000000000000000000000000000000000000
+; stingray, 02-dec-2015:
 ;
-; $Id: HRTmonV2.s 1.17 2011/08/28 18:21:01 wepl Exp wepl $
+; FIXED:
+; - the "mon_setscreen" call which was added in 2.35
+;   trashed the tracer output and made the tracer more or less
+;   unusable, mon_setscren is now skipped if the tracer is active
+;
+; - the added WHDLoad "WS" command (save memory) clashed with the
+;   originally built-in "WS" command (write sectors), renamed
+;   "WSM"
+;
+; - help mode often couldn't be quit, changed break flag handling
+;   and added check that help key has been released, help mode works
+;   correctly now
+
+
+; CHANGED:
+; 
+; - WHDLoad "WL" command renamed to "WLM" to have a consistent
+;   naming scheme
+; - minor code optimising
+; - VER_MIN bumped to 36
+
+;
+; $Id: HRTmonV2.s 1.18 2013/10/14 00:36:37 wepl Exp wepl $
 ;
 ;HRTmon Amiga system monitor
 ;Copyright (C) 1991-1998 Alain Malek Alain.Malek@cryogen.com
@@ -25,7 +47,7 @@
 *******************************
 
 VER_MAJ equ 2
-VER_MIN equ 35
+VER_MIN equ 36
 	IFND CARTRIDGE		;maybe set via commandline
 CARTRIDGE = 0			;0 = normal mode  1= UAE cartridge mode
 	ENDC
@@ -347,7 +369,7 @@ mon_install	movem.l	d1-a6,-(a7)
 		move.b	config_insert(pc),insert_mode
 
 		moveq	#0,d0
-		move.b	config2,d0		;keyboard map
+		move.b	config2(pc),d0		;keyboard map
 		mulu	#12,d0
 		movem.l	.map(pc,d0.l),d0-d2
 		movem.l	d0-d2,board_ptr
@@ -588,7 +610,7 @@ except_entry0
 
 		sub.l	#except_entry0+4,.retaddr
 		lea.l	backup_vbr,a0
-		add.l	.retaddr,a0
+		add.l	.retaddr(pc),a0
 		move.l	$60(a0),.jmp_addr
 
 		move.l	2(a7),a0
@@ -738,8 +760,8 @@ init_code	movem.l	d0-a6,-(a7)
 
 exec_here	movem.l	d1/a0-a1,-(a7)
 
-		move.l	(whd_base),d0
-		bne	.nosafe
+		move.l	(whd_base,pc),d0
+		bne.b	.nosafe
 
 		move.l	$4.w,a0
 		move.l	a0,d0
@@ -1129,11 +1151,11 @@ tracea_off
 .nokill
 	;wepl: if whdload is active we haven't init different, therefore...
 		tst.l	(whd_base)
-		beq	.nowhd
+		beq.b	.nowhd
 	MC68010
 		movec	vbr,a0
 	MC68000
-		move.l	oldvbi,($6c,a0)
+		move.l	oldvbi(pc),($6c,a0)
 		bra	.anowhd
 .nowhd		bsr	exit_vbr
 .anowhd
@@ -1546,7 +1568,15 @@ print_status:	movem.l	d0-d3/a0,-(a7)
 
 super		move.w	#$2000,sr		;enable interrupts
 
+; stingray, 02-Dec-2015
+; the added "mon_Setscreen" trashes the tracer!
+; fixed!
+		tst.b	trace_moni		; in tracer?
+		bne.b	.nosetscreen		; if so, no screen changes!
+
 		bsr	mon_setscreen
+.nosetscreen
+
 
 		tst.l	whd_base
 		bne	.okscreen
@@ -1777,7 +1807,7 @@ do_tracer	movem.l	d0-d7/a0-a6,-(a7)
 		clr.l	cursor_x
 		bsr	print_reg
 
-		lea.l	empty_txt,a0
+		lea.l	empty_txt(pc),a0
 		bsr	print
 
 		lea.l	tracer_addr,a3
@@ -2642,16 +2672,28 @@ no_del
 
 		cmp.b	#$5f,d0
 		bne.b	no_help
+; stingray, 02-dec-2015:
+; help mode often couldn't be quit, changed
+; the break flag handling and added a check
+; that the help key has been released
+.wait_release
+	btst	#0,$bfec01
+	bne.b	.wait_release
+	
 		move.b	#$7f,(a0)
+
 		move.l	a0,-(a7)
-		lea.l	help_txt,a0
-		bsr	print_curs
 		tst.b	break
 		beq.b	.nobrk
 		sf	break
 		lea.l	break_txt,a0
 		bsr	print
-.nobrk		move.l	(a7)+,a0
+		bra.b	.quithelp
+.nobrk		
+		lea.l	help_txt,a0
+		bsr	print_curs
+
+.quithelp	move.l	(a7)+,a0
 no_help
 
 ;-------------- Tab --------------------------------
@@ -3097,10 +3139,10 @@ cmd_list:	dc.b 'R',0,0,0,0,0,0,0
 	;whdload related commands
 		dc.b 'WI',0,0,0,0,0,0
 		dc.l cmd_wi,0,0
-		dc.b 'WL',0,0,0,0,0,0
-		dc.l cmd_wl,0,0
-		dc.b 'WS',0,0,0,0,0,0
-		dc.l cmd_ws,0,0
+		dc.b 'WLM',0,0,0,0,0
+		dc.l cmd_wlm,0,0
+		dc.b 'WSM',0,0,0,0,0
+		dc.l cmd_wsm,0,0
 		dc.b 'WD',0,0,0,0,0,0
 		dc.l cmd_wd,0,0
 		dc.b 'WQ',0,0,0,0,0,0
@@ -3596,38 +3638,38 @@ cmd_excep	moveq	#0,d2			;first vector
 		sub.w	window_top,d4
 		move.w	d4,d5
 .loop		tst.b	break
-		bne	.exit
+		bne.b	.exit
 		move.l	d2,d0
 		lea	_exceptionnames,a0
 		jsr	_DoStringNull
 		move.l	d0,d3
-		beq	.next
+		beq.b	.next
 
-		lea	.t1,a0
+		lea	.t1(pc),a0
 		bsr	print
 		move.l	(a2),d0
 		moveq	#8,d1
 		bsr	print_hex
-		lea	.t2,a0
+		lea	.t2(pc),a0
 		bsr	print
 		move.l	a2,d0
 		moveq	#2,d1
 		bsr	print_hex
-		lea	.t3,a0
+		lea	.t3(pc),a0
 		bsr	print
 		move.l	d3,a0
 		bsr	print
 		jsr	_PrintLn
 
 		subq.w	#1,d4
-		bne	.next
+		bne.b	.next
 		move.w	d5,d4
 		bsr	get_key
 
 .next		addq.w	#1,d2
 		addq.l	#4,a2
 		cmp.w	#64,d2
-		bne	.loop
+		bne.b	.loop
 
 .exit		bra.w	end_command
 
@@ -7784,7 +7826,7 @@ next_rdis_line
 		eor.l	d0,4(A4)
 		cmp.w	#$cf47,(A4)
 		bne.s	.nrdl4
-		move.w	#$4e92,(A4)
+		move.w	#$4e92,(A4)		; jsr (a2)
 .nrdl4
 
 .nrdl5		move.l	a4,-(a7)
@@ -7805,7 +7847,7 @@ next_rdis_line
 		MOVEM.L	(A7)+,d0/a0/a1
 .nocopy
 		moveq.l	#0,d7
-		cmp.w	#$4afc,(A4)
+		cmp.w	#$4afc,(A4)		; illegal?
 		bne.s	.notogglemode
 		bset.l	#$10,d7
 .notogglemode	move.w	rd_mode,d7
@@ -11551,7 +11593,7 @@ WriteM_Block	movem.l	d1-d3/a0-a3,-(a7)
 
 		move.l	ide_base(pc),a3
 
-.wait		move.w	ide_status,d3
+.wait		move.w	ide_status(pc),d3
 		tst.b	(a3,d3.w)
 		bmi.b	.wait			;BUSY ?
 
@@ -11567,10 +11609,10 @@ WriteM_Block	movem.l	d1-d3/a0-a3,-(a7)
 		cmp.w	II_NbCyl(a1),d0		;nb_cyl
 		bge.w	.error
 
-		move.w	ide_cyllo,d3
+		move.w	ide_cyllo(pc),d3
 		move.b	d0,(a3,d3.w)
 		lsr.w	#8,d0
-		move.w	ide_cylhi,d3
+		move.w	ide_cylhi(pc),d3
 		move.b	d0,(a3,d3.w)
 		clr.w	d0
 		swap	d0
@@ -11581,22 +11623,22 @@ WriteM_Block	movem.l	d1-d3/a0-a3,-(a7)
 		cmp.w	II_NbSecTrack(a1),d0	;nb_sectrack
 		bge.w	.error
 		addq.b	#1,d0
-		move.w	ide_secnb,d3
+		move.w	ide_secnb(pc),d3
 		move.b	d0,(a3,d3.w)		;start sector
 
-		move.w	ide_dhead,d3
+		move.w	ide_dhead(pc),d3
 		move.b	d1,(a3,d3.w)
 
-		move.w	ide_secnt,d3
+		move.w	ide_secnt(pc),d3
 		move.b	d2,(a3,d3.w)		;write d2 sectors
 
 		moveq	#$30,d0			;WriteSector
-		move.w	ide_command,d3
+		move.w	ide_command(pc),d3
 		move.b	d0,(a3,d3.w)		;Drive cmd
 
 		subq.w	#1,d2			;for dbf
 
-.busy		move.w	ide_status,d0
+.busy		move.w	ide_status(pc),d0
 		move.b	(a3,d0.w),d0
 		bmi.b	.busy
 		btst	#0,d0
@@ -11606,7 +11648,7 @@ WriteM_Block	movem.l	d1-d3/a0-a3,-(a7)
 
 		move.l	-(a0),a2		;get next block address
 
-		move.w	ide_data,d0
+		move.w	ide_data(pc),d0
 		lea.l	(a3,d0.w),a1
 
 		move.w	#512/32-1,d0
@@ -11632,7 +11674,7 @@ WriteM_Block	movem.l	d1-d3/a0-a3,-(a7)
 
 		dbf	d2,.busy
 
-.busy2		move.w	ide_status,d0
+.busy2		move.w	ide_status(pc),d0
 		move.b	(a3,d0.w),d0
 		btst	#0,d0
 		bne.b	.error
@@ -11733,28 +11775,28 @@ cmd_scan	jmp	end_command
 _ShowEntryReason
 		movem.l	d0-a6,-(a7)
 		moveq	#1,d0
-		cmp.w	proc_type,d0
-		bhs	.end
+		cmp.w	proc_type(pc),d0
+		bhs.b	.end
 		moveq	#0,d0
 		move.w	(6,a0),d0		;format
 		cmp.w	#$68,d0			;keyboard
-		beq	.end
+		beq.b	.end
 		cmp.w	#$7c,d0			;NMI
-		beq	.end
-		lea	.str,a0
+		beq.b	.end
+		lea	.str(pc),a0
 		bsr	print
 		moveq	#4,d1
 		bsr	print_hex
-		lea	.spc,a0
+		lea	.spc(pc),a0
 		bsr	print
 		and.w	#$fff,d0
 		lsr.w	#2,d0
-		lea	_exceptionnames,a0
+		lea	_exceptionnames(pc),a0
 		bsr	_DoStringNull
 		move.l	d0,a0
 		tst.l	d0
-		bne	.known
-		lea	.unknown,a0
+		bne.b	.known
+		lea	.unknown(pc),a0
 .known		bsr	print
 		bsr	_PrintLn
 .end		movem.l	(a7)+,d0-a6
@@ -11777,6 +11819,10 @@ _PrintLn	lea	.lf,a0
 
 **************************************************************************
 		
+	IFND	_ciaa
+_ciaa	= $bfe001
+ciasdr	= $c00
+	ENDC	
 		include	src/whdload.s
 
 **************************************************************************
@@ -12043,21 +12089,21 @@ _exceptionnames
 
 _DoStringNull
 .start		cmp.w	(a0),d0			;lower bound
-		blt	.nextlist
+		blt.b	.nextlist
 		cmp.w	(2,a0),d0		;upper bound
-		bgt	.nextlist
+		bgt.b	.nextlist
 		move.w	d0,d1
 		sub.w	(a0),d1			;index
 		add.w	d1,d1			;because words
 		move.w	(8,a0,d1.w),d1		;rptr
-		beq	.nextlist
+		beq.b	.nextlist
 		add.w	d1,a0
 		move.l	a0,d0
 		rts
 
 .nextlist	move.l	(4,a0),a0		;next list
 		move.l	a0,d1
-		bne	.start
+		bne.b	.start
 		
 		moveq	#0,d0
 		rts

@@ -3,14 +3,14 @@
 @author "Alain Malek (Hornet of Alcatraz)"
 ## Dec 27, 1998
 ## This is a doc file in the amigaguide.library format.
-## HRTmon docs v2.35
-## $Id$
+## HRTmon docs v2.36
+## $Id: HRTmon.guide 1.8 2015/12/2 12:17:48 wepl Exp wepl $
 
 ##-------------------------------------------------------------------
 
 @Node Main "HRTmon documentation"
 
-			HRTmon v2.35 Documentation
+			HRTmon v2.36 Documentation
 
                             @{" Introduction " Link Introduction}
                             @{" Requirements " Link Requirements}
@@ -183,7 +183,7 @@ Usage: HRTmon -r
   and press return to validate it.
 
 - To repeat the same command without any parameter just press RETURN.
-  (Usefull when disassembling or dumping memory.)
+  (Useful when disassembling or dumping memory.)
 
 - Escape sets the cursor to the begin of the next line.
 
@@ -238,7 +238,7 @@ Usage: HRTmon -r
 
 	$134.l
 
-  This is usefull for functions like memory search or trainer.
+  This is useful for functions like memory search or trainer.
 
 - To enter a string with spaces use : '
 
@@ -1143,10 +1143,10 @@ address = when the processor reaches this address, it will activate the
 
 @{b}Notes:@{ub}
 
-- This function is usefull when you want to put a breakpoint in a ROM.
+- This function is useful when you want to put a breakpoint in a ROM.
 - Warning ! This function will slow-down your computer, as each instruction
   will be traced until the address is reached.
-- Be carfull when the processor switchs from User mode, to Supervisor !
+- Be careful when the processor switches from User mode to Supervisor!
 
 @EndNode
 
@@ -1462,7 +1462,7 @@ nbsec    = nb of sectors from startsec you want to save.
 @{b}Description:@{ub}
 
 - Save all. (Save memory, registers, etc... to disks.)
-  It is usefull if you want to save a game which doesn't have a 'save game'
+  It is useful if you want to save a game which doesn't have a 'save game'
   option.
 
 @{b}Syntax:@{ub}
@@ -1490,7 +1490,7 @@ nbsec    = nb of sectors from startsec you want to save.
 @{b}Description:@{ub}
 
 - Crunch and save all. (Save memory, registers, etc... to disks.)
-  It is usefull if you want to save a game which doesn't have a 'save game'
+  It is useful if you want to save a game which doesn't have a 'save game'
   option.
 
 @{b}Syntax:@{ub}
@@ -2031,6 +2031,14 @@ correspondance.
 @Node History "HRTmon/History"
                        @{b}History@{ub}
 
+version 2.36 Dec 02 2015 (StingRay)
+
+- fixed tracer output which was broken in 2.35
+- fixed help mode (couldn't be quit on very fast machines/UAE)
+- WHDLoad commands WL/WS renamed to WLM/WSM so the original WS
+  command to write sectors works again
+- some spelling mistakes in the documention fixed
+
 version 2.35 Oct 13 2013 (Wepl)
 
 - new command NR added, it displays memory like the N command but the
@@ -2216,7 +2224,7 @@ version 2.00 24 Nov 1996 (4th public release)
 - Some more preferences
 - Completly rewritten file access routines
 - New HRTmon program launcher
-- Lots of small usefull commands added...
+- Lots of small useful commands added...
 
 version 1.20 2 May 1995 (3rd public release)
 

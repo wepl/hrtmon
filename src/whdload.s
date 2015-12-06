@@ -1,4 +1,4 @@
-; $Id: whdload.s 1.8 2009/09/12 23:09:25 wepl Exp wepl $
+; $Id: whdload.s 1.9 2011/08/28 18:21:01 wepl Exp wepl $
 ;
 ; this file contains all whdload related commands
 ;
@@ -32,11 +32,16 @@ resload_ProtectSMC	 = 92
  ENDC
 
 ;---------------
-; command WL -	load a file using resload_LoadFile
+; stingray, 02-Dec-2015:
+; Was "WL" but since the WS command had to be renamed to WSM
+; I have renamed the "WL" command to "WLM" to have a consistent
+; naming scheme.
+
+; command WLM -	load a file using resload_LoadFile
 ;		(the same as command L but via WHDLoad)
 ;
 
-cmd_wl		tst.l	(whd_base)
+cmd_wlm		tst.l	(whd_base)
 		beq	w_notinwhdload
 
 		lea	ev_line,a1
@@ -92,11 +97,15 @@ cmd_wl		tst.l	(whd_base)
 		jmp	end_command
 
 ;---------------
-; command WS -	save memory region using resload_SaveFile
+; stingray, 02-Dec-2015:
+; Was "WS" which made the originally built-in "ws" command
+; (W.rite S.ectors) not work anymore, renamed to WSM!
+
+; command WSM -	save memory region using resload_SaveFile
 ;		(the same as command S but via WHDLoad)
 ;
 
-cmd_ws		tst.l	(whd_base)
+cmd_wsm		tst.l	(whd_base)
 		beq	w_notinwhdload
 
 		lea	ev_line,a1
