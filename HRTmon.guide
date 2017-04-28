@@ -3,14 +3,13 @@
 @author "Alain Malek (Hornet of Alcatraz)"
 ## Dec 27, 1998
 ## This is a doc file in the amigaguide.library format.
-## HRTmon docs v2.36
-## $Id: HRTmon.guide 1.8 2015/12/2 12:17:48 wepl Exp wepl $
+## $Id: HRTmon.guide 1.8 2015/12/06 22:11:39 wepl Exp wepl $
 
 ##-------------------------------------------------------------------
 
 @Node Main "HRTmon documentation"
 
-			HRTmon v2.36 Documentation
+			HRTmon v2.37 Documentation
 
                             @{" Introduction " Link Introduction}
                             @{" Requirements " Link Requirements}
@@ -2030,6 +2029,12 @@ correspondance.
 
 @Node History "HRTmon/History"
                        @{b}History@{ub}
+
+version 2.37 Apr 28 2017 (Toni Wilen, Wepl)
+
+- changes for uae/aca-rom
+- don't wait for blitter if dma is off
+- don't read vbr with whdload on 68000
 
 version 2.36 Dec 02 2015 (StingRay)
 

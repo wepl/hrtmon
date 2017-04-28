@@ -1,28 +1,26 @@
-; stingray, 02-dec-2015:
+; Toni Wilen, 28-apr-2017:
+; - changes for uae/aca-rom
+; - don't wait for blitter if dma is off
+; - don't read vbr with whdload on 68000
 ;
+; stingray, 02-dec-2015:
 ; FIXED:
 ; - the "mon_setscreen" call which was added in 2.35
 ;   trashed the tracer output and made the tracer more or less
 ;   unusable, mon_setscren is now skipped if the tracer is active
-;
 ; - the added WHDLoad "WS" command (save memory) clashed with the
 ;   originally built-in "WS" command (write sectors), renamed
 ;   "WSM"
-;
 ; - help mode often couldn't be quit, changed break flag handling
 ;   and added check that help key has been released, help mode works
 ;   correctly now
-
-
 ; CHANGED:
-; 
 ; - WHDLoad "WL" command renamed to "WLM" to have a consistent
 ;   naming scheme
 ; - minor code optimising
 ; - VER_MIN bumped to 36
-
 ;
-; $Id: HRTmonV2.s 1.18 2013/10/14 00:36:37 wepl Exp wepl $
+; $Id: HRTmonV2.s 1.19.1.1 2017/04/28 00:16:30 wepl Exp $
 ;
 ;HRTmon Amiga system monitor
 ;Copyright (C) 1991-1998 Alain Malek Alain.Malek@cryogen.com
@@ -47,15 +45,22 @@
 *******************************
 
 VER_MAJ equ 2
-VER_MIN equ 36
-	IFND CARTRIDGE		;maybe set via commandline
+VER_MIN equ 37
+
+ACA620 = 0
+ACA500PLUS = 0
+UAE = 0
+
 CARTRIDGE = 0			;0 = normal mode  1= UAE cartridge mode
-	ENDC
+SAVE_CUSTOM = 0
 
 ***********************************************************
 
-	IFNE CARTRIDGE
+	IFNE UAE
 		ORG $A10000
+	ENDC
+	IFNE ACA620
+		ORG $ec0000
 	ENDC
 
 	IFD BARFLY
@@ -133,11 +138,14 @@ PICSIZE equ $9800	;size of mem used for bitmap ( > MAX_SCREEN*h*80 )
 
 MAX_SCREEN equ 52
 
-	IFNE CARTRIDGE
-UAE_CUSTOM	equ $A9F000	;saved custom table in uae
+	IFNE SAVE_CUSTOM
+	IFNE ACA500PLUS
+PTR_CUSTOM	equ $44f000
+	ELSE	
+PTR_CUSTOM	equ $A9F000	;saved custom table in uae
+	ENDC
 	ENDC
 
-	incdir include:
 	include exec/tasks.i
 	include hardware/custom.i
 	include exec/types.i
@@ -167,9 +175,13 @@ RELOC_PIC:	macro
 ***********************************************************
 
 start
+	IFEQ CARTRIDGE
 		moveq	#-1,d0		;not executable
 		rts
-		dc.b "HRT!"		;4
+	ELSE
+		dc.l	nmi_rte_addr
+	ENDC
+		dc.b	"HRT!"		;4
 
 	OPT_OFF
 	IFEQ CARTRIDGE
@@ -177,8 +189,7 @@ start
 		bra.w	monitor		;12 jmp to monitor
 		bra.w	mon_remove	;16 jmp to remove routine
 	ELSE
-		nop
-		rts
+		bra.w	mon_install	;8  jmp to install routine
 		bra.w	monitor		;12 jmp to monitor
 		nop
 		rts
@@ -221,7 +232,7 @@ whd_slvstop	dc.l 0			;84 WHDLoad slave upper bound
 		version
 		dc.b	" "
 	IFND BARFLY
-		dc.b	"(xx.xx.2006)"
+		dc.b	"(xx.xx.2017)"
 	ELSE
 	DOSCMD	"WDate  >T:date"
 	INCBIN	"T:date"
@@ -465,7 +476,7 @@ mon_install	movem.l	d1-a6,-(a7)
 		dbf	d0,.loop
 
 .no_entry
-		rte
+		bra	exit_entry
 	ENDC
 
 
@@ -850,9 +861,12 @@ location2	dc.l 0			;HRTmon location
 monitor:	or	#$700,sr	;on 68060 it is granted that the first instruction
 					;is executed before any pending interupts, so we 
 					;stop them to avoid any confusing
+	IFNE ACA620
+		clr.w	$b8f03c
+	ENDC
 		bset	#0,entered
 		beq.b	.enter
-		rte				;don't enter twice
+		bra	exit_entry		;don't enter twice
 
 .enter		move.w	#$2700,sr
 
@@ -865,7 +879,7 @@ monitor:	or	#$700,sr	;on 68060 it is granted that the first instruction
 		bcc.b	.notin
 		move.l	registres,d0
 		clr.b	entered
-		rte
+		bra	exit_entry
 .notin
 		lea.l	stack,a7		;Own stack
 						;now bsr are allowed
@@ -915,8 +929,13 @@ monitor:	or	#$700,sr	;on 68060 it is granted that the first instruction
 		move.l	$4(a6),OldRaster	;save raster pos
 						;(wrong coz of .waittrap !)
 
+		move.w	$2(a6),d0
+		and.w	#$240,d0
+		cmp.w	#$240,d0		;blitter dma enabled?
+		bne.s	.noblit
 .blit		btst	#6,($2,a6)
 		bne.b	.blit			;wait end of blitter operation
+.noblit
 
 		move.l	a7_reg,a0
 		move.w	(a0),sr_reg
@@ -969,7 +988,7 @@ ok_ssp_a7
 		dc.w	$4e7a,$0808		;movec	PCR,d0
 .okmsp		move.l	d0,msp_reg
 
-	;this make problems under WHDLoad (warning changed CACR)
+	;this makes problems under WHDLoad (warning changed CACR)
 	IFEQ 1
 		cmp.w	#4,proc_type
 		bge.b	.no23
@@ -983,10 +1002,13 @@ ok_ssp_a7
 	;crashes
 		tst.l	(whd_base)
 		beq	.nowhd
+		sub.l	a0,a0
+		tst.w	proc_type
+		beq.s	.nowhdvbr
 	MC68010
 		movec	vbr,a0
 	MC68000
-		move.l	($6c,a0),oldvbi
+.nowhdvbr	move.l	($6c,a0),oldvbi
 		move.l	#newirq,($6c,a0)
 		bra	.anowhd
 .nowhd		bsr	enter_vbr
@@ -1150,11 +1172,15 @@ tracea_off
 
 .nokill
 	;wepl: if whdload is active we haven't init different, therefore...
-		tst.l	(whd_base)
+		tst.l	whd_base
 		beq.b	.nowhd
+		sub.l	a0,a0
+		tst.w	proc_type
+		beq.s	.nowhdvbr
 	MC68010
 		movec	vbr,a0
 	MC68000
+.nowhdvbr
 		move.l	oldvbi(pc),($6c,a0)
 		bra	.anowhd
 .nowhd		bsr	exit_vbr
@@ -1163,7 +1189,12 @@ tracea_off
 .okkill		movem.l	registres,d0-d7/a0-a6
 		sf	entered
 
-simple_ret	rte
+exit_entry
+	IFNE CARTRIDGE
+		move.l	start(pc),-(sp)
+		rts
+	ENDC
+nmi_rte_addr	rte
 
 oldvbi		dc.l	0
 
@@ -1342,11 +1373,11 @@ test_CPU	movem.l	d1/d5-d7/a2-a5,-(a7)
 
 save_custom	movem.l	d0/a0-a4,-(a7)
 
-	IFNE CARTRIDGE
-		lea.l	UAE_CUSTOM,a0
+	IFNE SAVE_CUSTOM
+		lea.l	PTR_CUSTOM,a0
 		lea.l	custom,a1
 		move.l	a1,a4
-		move.w	#$200/8-1,d0
+		moveq	#$200/8-1,d0
 .copy		move.l	(a0)+,(a1)+
 		move.l	(a0)+,(a1)+
 		dbf	d0,.copy
@@ -1375,7 +1406,7 @@ save_custom	movem.l	d0/a0-a4,-(a7)
 
 		move.l	OldRaster,$4(a4)	;VPOSR,VHPOSR
 
-	IFEQ CARTRIDGE
+	IFEQ SAVE_CUSTOM
 		lea.l	$a(a6),a0
 		lea.l	$a(a4),a1
 		moveq	#9-1,d0
@@ -1396,7 +1427,7 @@ save_custom	movem.l	d0/a0-a4,-(a7)
 restore_custom	movem.l	d0/a1,-(a7)
 		lea.l	custom,a1
 
-	IFNE CARTRIDGE
+	IFNE SAVE_CUSTOM
 		move.l	$20(a1),$20(a6)		;DISKPTR
 		move.w	$34(a1),$34(a6)		;POTGO
 		move.w	$1e4(a1),$1e4(a6)	;DIWHIGH
@@ -3638,12 +3669,12 @@ cmd_excep	moveq	#0,d2			;first vector
 		sub.w	window_top,d4
 		move.w	d4,d5
 .loop		tst.b	break
-		bne.b	.exit
+		bne	.exit
 		move.l	d2,d0
 		lea	_exceptionnames,a0
 		jsr	_DoStringNull
 		move.l	d0,d3
-		beq.b	.next
+		beq	.next
 
 		lea	.t1(pc),a0
 		bsr	print
@@ -3662,14 +3693,14 @@ cmd_excep	moveq	#0,d2			;first vector
 		jsr	_PrintLn
 
 		subq.w	#1,d4
-		bne.b	.next
+		bne	.next
 		move.w	d5,d4
 		bsr	get_key
 
 .next		addq.w	#1,d2
 		addq.l	#4,a2
 		cmp.w	#64,d2
-		bne.b	.loop
+		bne	.loop
 
 .exit		bra.w	end_command
 
@@ -7847,7 +7878,7 @@ next_rdis_line
 		MOVEM.L	(A7)+,d0/a0/a1
 .nocopy
 		moveq.l	#0,d7
-		cmp.w	#$4afc,(A4)		; illegal?
+		cmp.w	#$4afc,(A4)		; illegal
 		bne.s	.notogglemode
 		bset.l	#$10,d7
 .notogglemode	move.w	rd_mode,d7
@@ -11696,7 +11727,19 @@ WriteM_Block	movem.l	d1-d3/a0-a3,-(a7)
 **************************************************************************
 ;-------------- read the palette from custom registers -------------------
 
-read_palette	movem.l	d0-d2/a0-a1,-(a7)
+read_palette	movem.l	d0-d2/a0-a2,-(a7)
+
+	IFNE SAVE_CUSTOM
+		lea.l	paletteL,a0
+		lea.l	paletteH,a1
+		moveq	#32-1,d0
+		lea.l	PTR_CUSTOM+$180,a2
+.color3		move.w	(a2)+,d1
+		move.w	d1,(a1)+
+		move.w	d1,(a0)+
+		dbf	d0,.color3
+	ENDC
+
 		tst.b	config_AGA
 		beq.b	.noaga
 		move.w	#$0124,$104(a6)		;set read mode
@@ -11722,10 +11765,19 @@ read_palette	movem.l	d0-d2/a0-a1,-(a7)
 		add.w	#$2000,d0
 		dbf	d1,.loop_bank2
 		move.w	#$24,$104(a6)		;set write mode
-.noaga		movem.l	(a7)+,d0-d2/a0-a1
+.noaga		movem.l	(a7)+,d0-d2/a0-a2
 		rts
 
 restore_palette	movem.l	d0-d2/a0-a1,-(a7)
+
+	IFNE SAVE_CUSTOM
+		lea.l	paletteH,a0
+		moveq	#32-1,d0
+		lea.l	$180(a6),a1
+.color3		move.w	(a0)+,(a1)+
+		dbf	d0,.color3
+	ENDC
+
 		tst.b	config_AGA
 		beq.b	.noaga
 
@@ -11776,13 +11828,13 @@ _ShowEntryReason
 		movem.l	d0-a6,-(a7)
 		moveq	#1,d0
 		cmp.w	proc_type(pc),d0
-		bhs.b	.end
+		bhs	.end
 		moveq	#0,d0
 		move.w	(6,a0),d0		;format
 		cmp.w	#$68,d0			;keyboard
-		beq.b	.end
+		beq	.end
 		cmp.w	#$7c,d0			;NMI
-		beq.b	.end
+		beq	.end
 		lea	.str(pc),a0
 		bsr	print
 		moveq	#4,d1
@@ -11795,7 +11847,7 @@ _ShowEntryReason
 		bsr	_DoStringNull
 		move.l	d0,a0
 		tst.l	d0
-		bne.b	.known
+		bne	.known
 		lea	.unknown(pc),a0
 .known		bsr	print
 		bsr	_PrintLn
@@ -11946,13 +11998,12 @@ ascII_mac	macro
 		dc.b "HRTmon V"
 		version
 	IFND BARFLY
-		dc.b " by Alain Malek                         "
-		dc.b "                      "
+		dc.b " by Alain Malek and others                                    "
 	ELSE
-		dc.b " by Alain Malek patched by Wepl at "
+		dc.b " by Alain Malek and others, build by Wepl at "
 	DOSCMD	"WDate  >T:date"
 	INCBIN	"T:date"
-		dc.b "               "
+		dc.b "     "
 	ENDC
 
 		dc.b \1
@@ -12089,21 +12140,21 @@ _exceptionnames
 
 _DoStringNull
 .start		cmp.w	(a0),d0			;lower bound
-		blt.b	.nextlist
+		blt	.nextlist
 		cmp.w	(2,a0),d0		;upper bound
-		bgt.b	.nextlist
+		bgt	.nextlist
 		move.w	d0,d1
 		sub.w	(a0),d1			;index
 		add.w	d1,d1			;because words
 		move.w	(8,a0,d1.w),d1		;rptr
-		beq.b	.nextlist
+		beq	.nextlist
 		add.w	d1,a0
 		move.l	a0,d0
 		rts
 
 .nextlist	move.l	(4,a0),a0		;next list
 		move.l	a0,d1
-		bne.b	.start
+		bne	.start
 		
 		moveq	#0,d0
 		rts
