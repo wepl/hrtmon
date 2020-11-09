@@ -1,6 +1,6 @@
 ;APS00000000000000000000000000000000000000000000000000000000000000000000000000000000
 
-; $Id: disassemble.s 1.2 2000/11/24 19:51:31 jah Exp jah $
+; $Id: disassemble.s 1.4 2010/05/16 18:19:42 wepl Exp wepl $
 
 ;HRTmon Amiga system monitor
 ;Copyright (C) 1991-1998 Alain Malek Alain.Malek@cryogen.com

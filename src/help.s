@@ -1,5 +1,5 @@
 ;
-; $Id: help.s 1.5 2013/10/14 00:35:05 wepl Exp wepl $
+; $Id: help.s 1.6 2015/12/06 22:14:02 wepl Exp wepl $
 ;
 ;HRTmon Amiga system monitor
 ;Copyright (C) 1991-1998 Alain Malek Alain.Malek@cryogen.com

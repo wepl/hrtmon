@@ -20,7 +20,7 @@
 ; - minor code optimising
 ; - VER_MIN bumped to 36
 ;
-; $Id: HRTmonV2.s 1.19.1.1 2017/04/28 00:16:30 wepl Exp $
+; $Id: HRTmonV2.s 1.20 2017/04/28 02:03:41 wepl Exp wepl $
 ;
 ;HRTmon Amiga system monitor
 ;Copyright (C) 1991-1998 Alain Malek Alain.Malek@cryogen.com
