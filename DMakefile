@@ -1,0 +1,24 @@
+#Makefile for HRTmonPrefs by Alain Malek 24/8/96
+
+all: HRTmonPrefs HRTmon
+
+HRTmonPrefs: HRTmonPrefs.c HRTmonGUI2.o assembler.o HRTboot.o assembler.h HRTmonLoad.o
+	dcc HRTmonPrefs.c HRTmonGUI2.o assembler.o HRTboot.o HRTmonLoad.o reqtoolss.lib
+
+HRTmonLoad.o: HRTmonLoad.h HRTmonLoad.c
+	dcc -c HRTmonLoad.c
+
+HRTmonGUI2.o: HRTmonGUI2.h HRTmonGUI2.c
+	dcc -c HRTmonGUI2.c
+
+assembler.o: assembler.s assembler.h
+	hd3:asm/devpac/genam from assembler.s to assembler.o
+
+HRTboot.o: HRTboot.s
+	hd3:asm/devpac/genam from HRTboot.s to HRTboot.o
+
+HRTmon: HRTmon.c assembler.o HRTmonLoad.o
+	dcc HRTmon.c assembler.o HRTmonLoad.o
+
+clean:
+	delete hrtmon hrtmonprefs hrtmongui2.o assembler.o hrtboot.o HRTmonLoad.o
