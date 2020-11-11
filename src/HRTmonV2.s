@@ -68,9 +68,9 @@ SAVE_CUSTOM = 0
 		SUPER			;disable supervisor warnings
 		BOPT w4-		;disable 64k warnings
 	IFEQ CARTRIDGE
-		OUTPUT "hrtmon.data"
+		OUTPUT "HRTmon.data"
 	ELSE
-		OUTPUT "hrtmon.rom"
+		OUTPUT "HRTmon.rom"
 	ENDC
 
 OPT_OFF		MACRO
@@ -85,9 +85,9 @@ OPT_ON		MACRO
 		MC68030
 		OPT NBL
 	IFEQ CARTRIDGE
-		FILE "hrtmon.data"
+		FILE "HRTmon.data"
 	ELSE
-		FILE "hrtmon.rom"
+		FILE "HRTmon.rom"
 	ENDC
 
 OPT_OFF		MACRO
@@ -211,9 +211,9 @@ error_sr	dc.w 0			;42 error sr
 error_pc	dc.l 0			;44 error pc
 error_status	dc.w 0			;48 error status
 		dc.b "NEWHRT"		;50 id string used by WHDLoad to distinguish from older ones
-mon_version	dc.w VER_MAJ		;56 version of HrtMon
-mon_revision	dc.w VER_MIN		;58 revision of HrtMon
-whd_base	dc.l 0			;60 resload base if HrtMon is called under WHDLoad
+mon_version	dc.w VER_MAJ		;56 version of HRTmon
+mon_revision	dc.w VER_MIN		;58 revision of HRTmon
+whd_base	dc.l 0			;60 resload base if HRTmon is called under WHDLoad
 whd_version	dc.w 0			;64 version of WHDLoad
 whd_revision	dc.w 0			;66 revision of WHDLoad
 max_chip	dc.l 0			;68 maximum value for CHIP-RAM
@@ -11813,7 +11813,7 @@ cmd_scan	jmp	end_command
 
 **************************************************************************
 ;--------------
-; shows the reason because HrtMon was entered
+; shows the reason because HRTmon was entered
 ; it will only output something if the reason is different than
 ; NMI and PORTS
 ; IN:	- a0 = stackframe
@@ -11851,7 +11851,7 @@ _ShowEntryReason
 
 .str		dc.b	"$",0
 .spc		dc.b	" ",0
-.unknown	dc.b	"undefined entry into HrtMon",0
+.unknown	dc.b	"undefined entry into HRTmon",0
 		even
 
 ;--------------

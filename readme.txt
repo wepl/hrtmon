@@ -19,7 +19,7 @@ HRTmon.guide.info
 HRTmon.readme
 
 ************************************
-hrtmon command files (starts HRTmon without HRTmonPrefs)
+HRTmon command files (starts HRTmon without HRTmonPrefs)
 ************************************
 
 HRTmon
