@@ -3,7 +3,6 @@
 ; this file contains all whdload related commands
 ;
 
- IFND WHDLOAD_I
 TDREASON_OK		 = -1
 TDREASON_DEBUG		 =  5
 resload_Abort		 =  4
@@ -29,7 +28,6 @@ resload_Relocate	 = 80
 resload_Delay		 = 84
 resload_DeleteFile	 = 88
 resload_ProtectSMC	 = 92
- ENDC
 
 ;---------------
 ; stingray, 02-Dec-2015:

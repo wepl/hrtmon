@@ -73,10 +73,6 @@ SAVE_CUSTOM = 0
 		OUTPUT "hrtmon.rom"
 	ENDC
 
-	incdir	includes:
-	include whdload.i
-	include whdmacros.i
-
 OPT_OFF		MACRO
 		BOPT OD6-		;disable branch optimizing
 		ENDM
@@ -146,13 +142,12 @@ PTR_CUSTOM	equ $A9F000	;saved custom table in uae
 	ENDC
 	ENDC
 
+	incdir	includes:
 	include exec/tasks.i
 	include hardware/custom.i
 	include exec/types.i
 	include exec/execbase.i
 	include devices/hardblocks.i
-
-	incdir hrt:
 
 ***********************************************************
 ;-------------- MACRO same as reloc_pic subroutine --------

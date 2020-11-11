@@ -5,7 +5,7 @@
 
 	XDEF _BootBlock
 
-	incdir include:
+	incdir	includes:
 	include "exec/libraries.i"
 
 ;VBR must be 0 !
