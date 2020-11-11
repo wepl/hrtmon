@@ -98,8 +98,26 @@ OPT_ON		MACRO
 		ENDM
 	ENDC
 
+	IFD __VASM
+		MC68030
+		OPT o1+
+	IFEQ CARTRIDGE
+		OUTPUT "HRTmon.data"
+	ELSE
+		OUTPUT "HRTmon.rom"
+	ENDC
+
+OPT_OFF		MACRO
+		OPT o1-
+		ENDM
+OPT_ON		MACRO
+		OPT o1+
+		ENDM
+	ENDC
+
 	IFND BARFLY
 	IFND _PHXASS_
+	IFND __VASM
 
 MC68000	MACRO
 	ENDM
@@ -119,6 +137,7 @@ OPT_ON	MACRO
 OPT_OFF	MACRO
 	ENDM
 
+	ENDC
 	ENDC
 	ENDC
 
@@ -226,12 +245,7 @@ whd_slvstop	dc.l 0			;84 WHDLoad slave upper bound
 		dc.b	"$VER: HRTmon.data "
 		version
 		dc.b	" "
-	IFND BARFLY
-		dc.b	"(xx.xx.2017)"
-	ELSE
-	DOSCMD	"WDate  >T:date"
-	INCBIN	"T:date"
-	ENDC
+	INCBIN	".date"
 		dc.b	10,0
 	EVEN
 
@@ -11978,7 +11992,7 @@ outerr_txt	dc.b "Wrong register number...",$a,0
 
 ;--------------------------------------------------------------------
 
-topaz2		incbin "topaz3.raw"
+topaz2		incbin "Topaz3.raw"
 		;880*10 Main Font
 
 		cnop 0,4
@@ -11992,14 +12006,9 @@ ascII_mac	macro
 		dc.b "更更更更更更更更更更更更更更更更更更更更"
 		dc.b "HRTmon V"
 		version
-	IFND BARFLY
-		dc.b " by Alain Malek and others                                    "
-	ELSE
-		dc.b " by Alain Malek and others, build by Wepl at "
-	DOSCMD	"WDate  >T:date"
-	INCBIN	"T:date"
-		dc.b "     "
-	ENDC
+		dc.b " by Alain Malek and others "
+	INCBIN	".date"
+		dc.b "                       "
 
 		dc.b \1
 		dc.b "Track:[00] Drive:[0] Address:[$00000000]"

@@ -732,7 +732,7 @@ print_spr_char	movem.l	d0-d4/a0-a1,-(a7)
 		movem.l	(a7)+,d0-d4/a0-a1
 		rts
 
-sprfont		incbin sprfont.raw
+sprfont		incbin SPRfont.raw
 ;"0123456789abcdefwhl "
 
 init_mouse:
