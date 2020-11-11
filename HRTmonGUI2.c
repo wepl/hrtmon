@@ -14,11 +14,11 @@
 #include <libraries/gadtools.h>
 #include <graphics/displayinfo.h>
 #include <graphics/gfxbase.h>
-#include <clib/exec_protos.h>
-#include <clib/intuition_protos.h>
-#include <clib/gadtools_protos.h>
-#include <clib/graphics_protos.h>
-#include <clib/utility_protos.h>
+#include <proto/exec.h>
+#include <proto/intuition.h>
+#include <proto/gadtools.h>
+#include <proto/graphics.h>
+#include <proto/utility.h>
 #include <string.h>
 
 #include "HRTmonGUI2.h"
@@ -35,7 +35,7 @@ UWORD                  MainLeft = 32;
 UWORD                  MainTop = 13;
 UWORD                  MainWidth = 492;
 UWORD                  MainHeight = 213;
-UBYTE                 *MainWdt = (UBYTE *)"HRTmonPrefs v2.2";
+UBYTE                 *MainWdt = (UBYTE *)"HRTmonPrefs v2.3";
 
 UBYTE *keyboard0Labels[] = {
 	(UBYTE *)"USA",
@@ -54,7 +54,7 @@ struct TextAttr topaz8 = {
 	( STRPTR )"topaz.font", 8, 0x00, 0x00 };
 
 struct NewMenu MainNewMenu[] = {
-	NM_TITLE, (STRPTR)"Preferences", NULL, 0, NULL, NULL,
+	NM_TITLE, (STRPTR)"Preferences", NULL, 0, 0L, NULL,
 	NM_ITEM, (STRPTR)"Save", NULL, 0, 0L, (APTR)MainSave,
 	NM_ITEM, (STRPTR)NM_BARLABEL, NULL, 0, 0L, NULL,
 	NM_ITEM, (STRPTR)"Quit", NULL, 0, 0L, (APTR)MainQuit,

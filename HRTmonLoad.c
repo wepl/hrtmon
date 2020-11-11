@@ -87,7 +87,6 @@ void set_default()
 
 void LoadInit()
 {
-	struct ExecBase *SysBase=(int*)*((int*)4);
 	BPTR cf;
 	int bread;
 
@@ -116,16 +115,9 @@ void LoadInit()
 
 /*******************************************************************/
 
-void wbmain()
-{
-	main(1, NULL);
-}
-
-/*******************************************************************/
-
 int Load(char *path)
 {
-	char *Buffer;
+	int *Buffer;
 	BPTR filelock,filehandle;
 	struct FileInfoBlock infoblock;
 	int autoaddr;
@@ -135,10 +127,10 @@ int Load(char *path)
 	strcpy(hrtname, path);
 	strcat(hrtname, "HRTmon.data");
 
-	if ( (filelock=Lock(hrtname,ACCESS_READ)) == NULL ) {	// Lock file
+	if ( ! (filelock=Lock(hrtname,ACCESS_READ)) ) {		// Lock file
 	    strcpy(hrtname, config.path);
 	    strcat(hrtname, "/HRTmon.data");
-	    if ( (filelock=Lock(hrtname,ACCESS_READ)) == NULL ) {
+	    if ( ! (filelock=Lock(hrtname,ACCESS_READ)) ) {
 	        printf("Can't open file HRTmon.data\n");
 	        return (TRUE);
 	    }
@@ -206,9 +198,9 @@ int LoadABS(int *memory,int *place)
 
 	if (*place == 0) {
 		if (execver >= 39)
-			*place = AllocMem(len*4, MEMF_PUBLIC | MEMF_REVERSE);
+			*place = (int)AllocMem(len*4, MEMF_PUBLIC | MEMF_REVERSE);
 		else
-			*place = AllocMem(len*4, MEMF_PUBLIC);
+			*place = (int)AllocMem(len*4, MEMF_PUBLIC);
 
 		if (*place == 0) {
 			printf("Not enough memory !\n");
@@ -256,7 +248,7 @@ int LoadABS(int *memory,int *place)
 
 	for ( i=0; i<len ; i++ ) {
 
-	    base=&base2[*p];
+	    base=(int*)&base2[*p];
 	    *base = *base + *place;
 	    p++;
 	}

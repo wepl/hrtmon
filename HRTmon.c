@@ -16,9 +16,10 @@
 int ShowReq(char *text,char*choice)
 {
 	printf("%s\n",text);
+	return 0;
 }
 
-void main(int argc, char **argv)
+int main(int argc, char **argv)
 {
 
 	LoadInit();
@@ -26,10 +27,10 @@ void main(int argc, char **argv)
 	if ( RemHRTmon() )
 	    printf("HRTmon located and removed\n");
 
-	if (argc != 2 || stricmp(argv[1],"-r"))
+	if (argc != 2 || strcmp(argv[1],"-r"))
 	    Load(config.path);
 
-	exit (0);
+	return 0;
 
 }
 

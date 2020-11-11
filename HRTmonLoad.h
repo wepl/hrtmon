@@ -7,6 +7,7 @@
 
 */
 
+#include <dos/dos.h>
 #include <exec/exec.h>
 #include <intuition/intuition.h>
 #include <intuition/classes.h>
@@ -16,16 +17,17 @@
 #include <libraries/gadtools.h>
 #include <graphics/displayinfo.h>
 #include <graphics/gfxbase.h>
-#include <clib/exec_protos.h>
-#include <clib/intuition_protos.h>
-#include <clib/gadtools_protos.h>
-#include <clib/graphics_protos.h>
-#include <clib/utility_protos.h>
+#include <proto/dos.h>
+#include <proto/exec.h>
+#include <proto/intuition.h>
+#include <proto/gadtools.h>
+#include <proto/graphics.h>
+#include <proto/utility.h>
+#include <stdio.h>
 #include <string.h>
 
 #include "assembler.h"
 
-#include <dos/dos.h>
 
 #define SCREEN_PAL	 0
 #define SCREEN_NTSC	 1

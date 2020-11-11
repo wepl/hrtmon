@@ -21,25 +21,29 @@
 
 __far extern int BootBlock[];
 
+#include <devices/trackdisk.h>
 #include <dos/dos.h>
-#include <reqtools.h>
+#include <libraries/reqtools.h>
 #include <proto/reqtools.h>
 
 /*******************************************************************/
 
+struct IntuitionBase *IntuitionBase;
+struct Library *GadToolsBase;
 struct ReqToolsBase *ReqToolsBase;
 
 int ShowReq(char *text,char*choice);	// Show EZRequest. from reqtools
 
+int WriteSec(void * Buffer,int Offset,int Len);
+
 /*******************************************************************/
 
-void main()
+int main()
 {
-	struct ExecBase *SysBase=(int*)*((int*)4);
-
-	if (!(ReqToolsBase = (struct ReqToolsBase *)
-		OpenLibrary (REQTOOLSNAME, REQTOOLSVERSION)))
-	    exit (1);
+	GadToolsBase = OpenLibrary ("gadtools.library", 37);
+	IntuitionBase = (struct IntuitionBase *) OpenLibrary ("intuition.library", 37);
+	ReqToolsBase = (struct ReqToolsBase *) OpenLibrary (REQTOOLSNAME, REQTOOLSVERSION);
+	if (!GadToolsBase | !IntuitionBase | !ReqToolsBase) return 20;
 
 	LoadInit();
 
@@ -76,8 +80,10 @@ void main()
 	CloseMainWindow();
 	CloseDownScreen();
 
-	CloseLibrary(ReqToolsBase);
-	exit (0);
+	CloseLibrary(GadToolsBase);
+	CloseLibrary((struct Library *)IntuitionBase);
+	CloseLibrary((struct Library *)ReqToolsBase);
+	return 0;
 
 }
 
@@ -86,15 +92,13 @@ void main()
 int ShowReq(char *text,char*choice)
 {
 	struct TagItem myTags[4]={
-	    RT_Window,NULL,
+	    RT_Window,(int)MainWnd,
 	    RT_LockWindow,TRUE,			// show busy pointer on parent window
-	    RTEZ_ReqTitle,"HRTmon requester",
+	    RTEZ_ReqTitle,(int)"HRTmon requester",
 	    TAG_DONE
 	};
 
-	myTags[0].ti_Data=MainWnd;	// init RT_Window field
-
-	return ( rtEZRequest (text,choice,NULL,myTags) );
+	return rtEZRequestA (text,choice,NULL,NULL,myTags);
 
 }
 
@@ -173,7 +177,7 @@ int BootDiskClicked()
 		autoaddr = config.address;
 
 
-	if ( (filelock=Lock("HRTmon.data",ACCESS_READ)) == NULL ) {	// Lock file
+	if ( ! (filelock=Lock("HRTmon.data",ACCESS_READ)) ) {	// Lock file
 	    ShowReq("Can't open file HRTmon.data","OK");
 	    return (TRUE);
 	}
@@ -200,7 +204,7 @@ int BootDiskClicked()
 	    return (TRUE);
 	}
 
-	if ( LoadABS(Buffer,&autoaddr) == FALSE ) {
+	if ( LoadABS((APTR)Buffer,&autoaddr) == FALSE ) {
 	    FreeMem(Buffer,infoblock.fib_Size);
 	    return (TRUE);
 	}
@@ -226,7 +230,7 @@ int BootDiskClicked()
 	    return (TRUE);	//Cancel clicked
 	}
 
-	if ( !WriteSec((char*)autoaddr,2,nb_sectors) ) {
+	if ( !WriteSec((APTR)autoaddr,2,nb_sectors) ) {
 	    if (config.abs || config.autoa)
 		FreeMem( (APTR)autoaddr, ((ULONG*)autoaddr)[5] );
 	    ShowReq("Couldn't write to disk !","OK");
@@ -265,55 +269,50 @@ int InstallClicked()
 
 /*******************************************************************/
 
-int WriteSec(char* Buffer,int Offset,int Len) {	// Offset and Len in sector
+int WriteSec(void * Buffer,int Offset,int Len) {	// Offset and Len in sector
 
-static struct IOStdReq diskio;
+static struct IOExtTD diskio;
 static struct MsgPort replyport;
 char *clear;
 int i,result;
 
-	clear=&diskio;
-	for (i=0;i< sizeof(struct IOStdReq);i++)
-	 *clear=0;
-
-	clear=&replyport;
-	for (i=0;i< sizeof(struct MsgPort);i++)
-	 *clear=0;
+	memset(&diskio,0,sizeof(struct IOExtTD));
+	memset(&replyport,0,sizeof(struct MsgPort));
 
 	replyport.mp_SigTask=FindTask( NULL );
 	AddPort(&replyport);
 
-	if (OpenDevice("trackdisk.device",0,&diskio,0)) {
+	if (OpenDevice(TD_NAME,0,(struct IORequest*)&diskio,0)) {
 	    ShowReq("Couldn't open trackdisk.device !","OK");
 	    RemPort(&replyport);
 	    return (FALSE);
 	}
 
-	diskio.io_Message.mn_ReplyPort=&replyport;
+	diskio.iotd_Req.io_Message.mn_ReplyPort=&replyport;
 
-	diskio.io_Command=CMD_WRITE;
-	diskio.io_Data=Buffer;
-	diskio.io_Offset=Offset*512;
-	diskio.io_Length=Len*512;
+	diskio.iotd_Req.io_Command=CMD_WRITE;
+	diskio.iotd_Req.io_Data=Buffer;
+	diskio.iotd_Req.io_Offset=Offset*512;
+	diskio.iotd_Req.io_Length=Len*512;
 
-	if ( DoIO(&diskio) )
+	if ( DoIO((struct IORequest*)&diskio) )
 	    result=FALSE;
 	else
 	    result=TRUE;
 
-	diskio.io_Command=CMD_UPDATE;
-	diskio.io_Data=NULL;
-	diskio.io_Offset=0;
-	diskio.io_Length=0;
-	DoIO(&diskio);
+	diskio.iotd_Req.io_Command=CMD_UPDATE;
+	diskio.iotd_Req.io_Data=NULL;
+	diskio.iotd_Req.io_Offset=0;
+	diskio.iotd_Req.io_Length=0;
+	DoIO((struct IORequest*)&diskio);
 
-	diskio.io_Command=9;		// Switch motor OFF
-	diskio.io_Data=NULL;
-	diskio.io_Offset=0;
-	diskio.io_Length=0;
-	DoIO(&diskio);
+	diskio.iotd_Req.io_Command=9;		// Switch motor OFF
+	diskio.iotd_Req.io_Data=NULL;
+	diskio.iotd_Req.io_Offset=0;
+	diskio.iotd_Req.io_Length=0;
+	DoIO((struct IORequest*)&diskio);
 
-	CloseDevice(&diskio);
+	CloseDevice((struct IORequest*)&diskio);
 	RemPort(&replyport);
 
 	return (result);

@@ -3,7 +3,7 @@
 	XDEF _RemHRTmon
 	XDEF _BootSum
 
-;int BootSum(char *BootBlockAddress);
+;int BootSum(int *BootBlockAddress);
 
 _BootSum	movem.l	d1-a6,-(a7)
 		move.l	15*4(a7),a0	;get BootBlockAddress
@@ -44,7 +44,9 @@ _RemHRTmon	movem.l	d1-a6,-(a7)
 super		moveq	#0,d7
 		move.l	$10.w,a3
 		move.l	#.illegal,$10.w
+	MC68010
 		movec	VBR,a0
+	MC68000
 .return		move.l	$7c(a0),a0
 		cmp.l	#'HRT!',-4(a0)
 		bne.b	.noHRT
