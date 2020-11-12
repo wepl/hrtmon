@@ -45,7 +45,7 @@
 *******************************
 
 VER_MAJ equ 2
-VER_MIN equ 37
+VER_MIN equ 38
 
 ACA620 = 0
 ACA500PLUS = 0
@@ -1796,7 +1796,7 @@ out_mon		st	tracer_refresh
 .loopd		tst.b	(a3)+
 		beq.b	.nodrive
 		move.w	d4,drive		;restore
-		bsr	rest_head		;floppy drive head pos
+		jsr	rest_head		;floppy drive head pos
 .nodrive	addq.w	#1,d4
 		dbf	d5,.loopd
 		move.w	(a7)+,drive
@@ -3167,6 +3167,9 @@ cmd_list:	dc.b 'R',0,0,0,0,0,0,0
 		dc.b 'HEXLOCK',0
 		dc.l cmd_hexlock,0,0
 
+		dc.b 'TT',0,0,0,0,0,0
+		dc.l cmd_tt,0,0
+
 	;whdload related commands
 		dc.b 'WI',0,0,0,0,0,0
 		dc.l cmd_wi,0,0
@@ -3707,6 +3710,125 @@ cmd_excep	moveq	#0,d2			;first vector
 .t2		dc.b	" : "
 .t1		dc.b	"$",0
 .t3		dc.b	" ",0
+		even
+
+;-------------- print exec tasks --------------
+
+cmd_tt		move.l	4,a2		;A2 = exec
+		lea	(.texec,pc),a0
+		bsr	print
+		move.l	a2,d0
+		moveq	#8,d1
+		bsr	print_hex
+		jsr	_PrintLn
+	;current
+		lea	(.tcurrent,pc),a0
+		bsr	print
+		move.l	(276,a2),a3	;A3 = current
+		bsr	.node
+	;ready
+		lea	(.tready,pc),a0
+		bsr	print
+		move.l	(406,a2),a3	;A3 = taskready
+		bsr	.node
+	;waiting
+		lea	(.twait,pc),a0
+		bsr	print
+		move.l	(420,a2),a3	;A3 = taskwaiting
+		bsr	.node
+		bra	end_command
+
+.node		tst.l	(a3)
+		bne	.go
+		rts
+.go		move.l	a3,d0
+		moveq	#8,d1
+		bsr	print_hex
+	;task/process
+		lea	(.ttask,pc),a0
+		cmp.b	#1,(8,a3)
+		beq	.task
+		lea	(.tproc,pc),a0
+.task		bsr	print
+	;sp
+		move.l	(54,a3),a4
+		add.w	#70,a4
+		cmp	#37,(20,a2)	;exec version
+		blo	.v34
+		addq.w	#4,a4
+.v34		lea	(.tsp,pc),a0
+		bsr	print
+		move.l	a4,d0
+		moveq	#8,d1
+		bsr	print_hex
+	;pc
+		lea	(.tpc,pc),a0
+		bsr	print
+		move.l	(a4),d0
+		moveq	#8,d1
+		bsr	print_hex
+	;name
+		lea	(.tspace,pc),a0
+		bsr	print
+		move.l	(10,a3),a0
+		bsr	print
+		jsr	_PrintLn
+		move.l	(a3),a3
+		bra	.node
+
+	IFEQ 1
+	moveq	#0,d2			;first vector
+		sub.l	a2,a2			;first vector
+
+		move.w	window_bot,d4
+		sub.w	window_top,d4
+		move.w	d4,d5
+.loop		tst.b	break
+		bne	.exit
+		move.l	d2,d0
+		lea	_exceptionnames,a0
+		jsr	_DoStringNull
+		move.l	d0,d3
+		beq	.next
+
+		lea	.t1(pc),a0
+		bsr	print
+		move.l	(a2),d0
+		moveq	#8,d1
+		bsr	print_hex
+		lea	.t2(pc),a0
+		bsr	print
+		move.l	a2,d0
+		moveq	#2,d1
+		bsr	print_hex
+		lea	.t3(pc),a0
+		bsr	print
+		move.l	d3,a0
+		bsr	print
+		jsr	_PrintLn
+
+		subq.w	#1,d4
+		bne	.next
+		move.w	d5,d4
+		bsr	get_key
+
+.next		addq.w	#1,d2
+		addq.l	#4,a2
+		cmp.w	#64,d2
+		bne	.loop
+
+.exit		bra.w	end_command
+	ENDC
+
+.texec		dc.b	"exec base = ",0
+.tcurrent	dc.b	"current:",10,0
+.tready		dc.b	"ready:",10,0
+.twait		dc.b	"waiting:",10,0
+.ttask		dc.b	" Task",0
+.tproc		dc.b	" Proc",0
+.tpc		dc.b	" pc=",0
+.tsp		dc.b	" sp=",0
+.tspace		dc.b	" ",0
 		even
 
 ;-------------- disk to file -----------------------------------
