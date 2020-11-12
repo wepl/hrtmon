@@ -68,14 +68,10 @@ SAVE_CUSTOM = 0
 		SUPER			;disable supervisor warnings
 		BOPT w4-		;disable 64k warnings
 	IFEQ CARTRIDGE
-		OUTPUT "hrtmon.data"
+		OUTPUT "HRTmon.data"
 	ELSE
-		OUTPUT "hrtmon.rom"
+		OUTPUT "HRTmon.rom"
 	ENDC
-
-	incdir	includes:
-	include whdload.i
-	include whdmacros.i
 
 OPT_OFF		MACRO
 		BOPT OD6-		;disable branch optimizing
@@ -89,9 +85,9 @@ OPT_ON		MACRO
 		MC68030
 		OPT NBL
 	IFEQ CARTRIDGE
-		FILE "hrtmon.data"
+		FILE "HRTmon.data"
 	ELSE
-		FILE "hrtmon.rom"
+		FILE "HRTmon.rom"
 	ENDC
 
 OPT_OFF		MACRO
@@ -102,8 +98,26 @@ OPT_ON		MACRO
 		ENDM
 	ENDC
 
+	IFD __VASM
+		MC68030
+		OPT o1+
+	IFEQ CARTRIDGE
+		OUTPUT "HRTmon.data"
+	ELSE
+		OUTPUT "HRTmon.rom"
+	ENDC
+
+OPT_OFF		MACRO
+		OPT o1-
+		ENDM
+OPT_ON		MACRO
+		OPT o1+
+		ENDM
+	ENDC
+
 	IFND BARFLY
 	IFND _PHXASS_
+	IFND __VASM
 
 MC68000	MACRO
 	ENDM
@@ -123,6 +137,7 @@ OPT_ON	MACRO
 OPT_OFF	MACRO
 	ENDM
 
+	ENDC
 	ENDC
 	ENDC
 
@@ -146,13 +161,12 @@ PTR_CUSTOM	equ $A9F000	;saved custom table in uae
 	ENDC
 	ENDC
 
+	incdir	includes:
 	include exec/tasks.i
 	include hardware/custom.i
 	include exec/types.i
 	include exec/execbase.i
 	include devices/hardblocks.i
-
-	incdir hrt:
 
 ***********************************************************
 ;-------------- MACRO same as reloc_pic subroutine --------
@@ -216,9 +230,9 @@ error_sr	dc.w 0			;42 error sr
 error_pc	dc.l 0			;44 error pc
 error_status	dc.w 0			;48 error status
 		dc.b "NEWHRT"		;50 id string used by WHDLoad to distinguish from older ones
-mon_version	dc.w VER_MAJ		;56 version of HrtMon
-mon_revision	dc.w VER_MIN		;58 revision of HrtMon
-whd_base	dc.l 0			;60 resload base if HrtMon is called under WHDLoad
+mon_version	dc.w VER_MAJ		;56 version of HRTmon
+mon_revision	dc.w VER_MIN		;58 revision of HRTmon
+whd_base	dc.l 0			;60 resload base if HRTmon is called under WHDLoad
 whd_version	dc.w 0			;64 version of WHDLoad
 whd_revision	dc.w 0			;66 revision of WHDLoad
 max_chip	dc.l 0			;68 maximum value for CHIP-RAM
@@ -231,12 +245,7 @@ whd_slvstop	dc.l 0			;84 WHDLoad slave upper bound
 		dc.b	"$VER: HRTmon.data "
 		version
 		dc.b	" "
-	IFND BARFLY
-		dc.b	"(xx.xx.2017)"
-	ELSE
-	DOSCMD	"WDate  >T:date"
-	INCBIN	"T:date"
-	ENDC
+	INCBIN	".date"
 		dc.b	10,0
 	EVEN
 
@@ -11940,7 +11949,7 @@ cmd_scan	jmp	end_command
 
 **************************************************************************
 ;--------------
-; shows the reason because HrtMon was entered
+; shows the reason because HRTmon was entered
 ; it will only output something if the reason is different than
 ; NMI and PORTS
 ; IN:	- a0 = stackframe
@@ -11978,7 +11987,7 @@ _ShowEntryReason
 
 .str		dc.b	"$",0
 .spc		dc.b	" ",0
-.unknown	dc.b	"undefined entry into HrtMon",0
+.unknown	dc.b	"undefined entry into HRTmon",0
 		even
 
 ;--------------
@@ -12105,7 +12114,7 @@ outerr_txt	dc.b "Wrong register number...",$a,0
 
 ;--------------------------------------------------------------------
 
-topaz2		incbin "topaz3.raw"
+topaz2		incbin "Topaz3.raw"
 		;880*10 Main Font
 
 		cnop 0,4
@@ -12119,14 +12128,9 @@ ascII_mac	macro
 		dc.b "更更更更更更更更更更更更更更更更更更更更"
 		dc.b "HRTmon V"
 		version
-	IFND BARFLY
-		dc.b " by Alain Malek and others                                    "
-	ELSE
-		dc.b " by Alain Malek and others, build by Wepl at "
-	DOSCMD	"WDate  >T:date"
-	INCBIN	"T:date"
-		dc.b "     "
-	ENDC
+		dc.b " by Alain Malek and others "
+	INCBIN	".date"
+		dc.b "                       "
 
 		dc.b \1
 		dc.b "Track:[00] Drive:[0] Address:[$00000000]"

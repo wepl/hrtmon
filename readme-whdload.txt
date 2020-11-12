@@ -1,6 +1,6 @@
 
 to use the whdload commands whdload version 8.1.1908 or better is required
-moreover in the HrtmonPrefs the option "No VBR move" must be checked
+moreover in the HRTmonPrefs the option "No VBR move" must be checked
 
 the following commands are currently available:
 
