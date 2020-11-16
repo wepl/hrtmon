@@ -134,7 +134,7 @@ cmd_wsm		tst.l	(whd_base)
 		bra	w_success
 
 ;---------------
-; key Alt+PrtSc - save cuurent screen using resload_SaveFile
+; key Alt+PrtSc - save current screen using resload_SaveFile
 ;
 
 key_prtsc	movem.l	d0-d3/a0-a2,-(a7)
