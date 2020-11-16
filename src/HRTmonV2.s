@@ -8215,10 +8215,6 @@ too_break	lea.l	too_break_txt,a0
 		bsr	print
 		bra.w	end_command
 
-not_found	lea.l	not_found_txt,a0
-		bsr	print
-		bra.w	end_command
-
 *********************************************************
 ;d0=ascII
 upper_case:	cmp.b	#'a',d0			;switch to upper case (d0)
@@ -9987,6 +9983,8 @@ write_flush	movem.l	d0-d7/a0-a4,-(a7)
 ;-> d1=nb of sector
 ;-> a0=address
 
+	IFEQ 1	; unused
+
 write		movem.l	d0-d1/a0,-(a7)
 		tst.w	d1
 		beq.b	.nosave
@@ -10022,6 +10020,8 @@ read		movem.l	d0-d1/a0,-(a7)
 .noread		tst.w	drive_err
 		movem.l	(a7)+,d0-d1/a0
 		rts
+
+	ENDC
 
 ;-------------- write multiple sectors to floppy ----------
 
@@ -11191,7 +11191,7 @@ ide_writem	movem.l	d0-d2/a0,-(a7)
 
 		tst.l	d0
 		beq.b	.noerr
-.err		move.w	#IDE_ERR,drive_err
+		move.w	#IDE_ERR,drive_err
 .noerr
 		movem.l	(a7)+,d0-d2/a0
 		add.w	d1,d1
@@ -11941,12 +11941,6 @@ restore_palette	movem.l	d0-d2/a0-a1,-(a7)
 .noaga		movem.l	(a7)+,d0-d2/a0-a1
 		rts
 
-
-**************************************************************************
-;-------------- SCAN scan memory for samples -----------------------------
-
-cmd_scan	jmp	end_command
-
 **************************************************************************
 ;--------------
 ; shows the reason because HRTmon was entered
@@ -12073,7 +12067,6 @@ BP_clr_txt	dc.b "Break Point removed at address $",0
 all_break_txt	dc.b "Break Point at $",0
 all_break2_txt	dc.b "JSR Break Point at $",0
 all_BP_txt	dc.b "All Break Points cleared",$a,0
-show_txt	dc.b "memory address : $",0
 break_txt	dc.b "Break...",$a,0
 drive_txt	dc.b "Active drive is now : ",0
 no_disk_txt	dc.b "No disk in drive ...",$a,0
@@ -12081,7 +12074,6 @@ corrupt_txt	dc.b "Track corrupted ...",$a,0
 bad_sum_txt	dc.b "Bad Block_Checksum ...",$a,0
 NotDOS_txt	dc.b "Not a DOS disk ...",$a,0
 WriteProt_txt	dc.b "Disk is write-protected ...",$a,0
-Bitmap_txt	dc.b "Invalid Bitmap ...",$a,0
 
 NotEmpty_txt		dc.b "Directory not empty ...",$a,0
 IDEerr_txt		dc.b "IDE disk error ...",$a,0
@@ -12103,12 +12095,9 @@ illegal_val_txt		dc.b "Illegal value...",$a,0
 illegal_name_txt	dc.b "Illegal name...",$a,0
 illegal_string_txt	dc.b "Illegal string...",$a,0
 illegal_expr_txt	dc.b "Illegal expression...",$a,0
-not_found_txt		dc.b "File not found...",$a,0
 too_break_txt		dc.b "Too many break points...",$a,0
 insert_off_txt		dc.b "off"
 insert_on_txt		dc.b "on "
-
-outerr_txt	dc.b "Wrong register number...",$a,0
 
 		include src/help.s
 
@@ -12365,7 +12354,6 @@ cursor_x:	dc.w 0
 cursor_y:	dc.w 0
 old_cursor:	dc.l 0		;cursor_xy backup for Tracer
 print_cnt	dc.w 0		;used in print procedure
-ascII_num:	dcb.b 8,0
 cursor_on:	dc.b 0		;actual cursor state (displayed or not)
 no_curs:	dc.b 0		;disable cursor
 key:		dc.b 0		;actual key

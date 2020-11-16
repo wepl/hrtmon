@@ -650,6 +650,8 @@ SprPrintLong	movem.l	d0-d4,-(a7)
 		movem.l	(a7)+,d0-d4
 		rts
 
+	IFEQ 1	; unused
+
 ;-> d0=xpos
 ;-> d1=ypos
 ;-> d2=word
@@ -666,6 +668,8 @@ SprPrintWord	movem.l	d0-d4,-(a7)
 		dbf	d4,.loop
 		movem.l	(a7)+,d0-d4
 		rts
+
+	ENDC
 
 ;-> d0=xpos
 ;-> d1=ypos
@@ -904,8 +908,6 @@ modulo		dc.w 0
 spr_color	dc.w 0			;no of bank used for sprite color
 x_spr:		dc.w 0
 y_spr:		dc.w 0
-x_spr2:		dc.w 0
-y_spr2:		dc.w 0
 old_mx:		dc.w 0
 old_my:		dc.w 0
 left:		dc.b 0
@@ -931,6 +933,4 @@ sprite2:	dc.w $3080,0,0,0,$4800,0,0,0
 		endr
 		dc.w 0,0,0,0,0,0,0,0
 		dc.w 0,0,0,0,0,0,0,0
-end_sprite
-
 

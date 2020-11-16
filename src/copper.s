@@ -298,5 +298,4 @@ move_list	dcb.b $40,0		;$000-$07e
 		dcb.b $b,0		;$1e6-$1fa
 		dc.b -1			;$1fc
 		dc.b 0			;$1fe
-move_end
 
