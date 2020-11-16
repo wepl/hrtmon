@@ -1,5 +1,16 @@
 #
-# Makefile for HRTmon
+# GNU Makefile for HRTmon
+#
+# supported platforms:
+# Amiga	
+#	'setenv AMIGA 1' for system detection
+#	assign Includes: must point to system includes
+#	requires WDate command, see WHDLoad-dev package Src/programs/WDate
+#	basm default, use DEBUG=0 for vasm
+# Linux/MacOSX
+#	$INCLUDEOS3 must point to system includes
+#	vasm default, use DEBUG=1 for basm (requires Vamos)
+# includes for reqtools.library are needed additionally (aminet:util/libs/ReqToolsDev.lha)
 #
 # $@ target
 # $< first dependency
@@ -89,10 +100,15 @@ LN=vc
 #
 HRTmon.data: src/HRTmonV2.s .date | .depend
 	$(ASM) $(ASMOUT)$@ $<
-
+#
+# HRTmon loader
+#
 HRTmon: HRTmon.o assembler.o HRTmonLoad.o
 	$(LN) $^ -o $@
 
+#
+# HRTmon preferences editor
+#
 HRTmonPrefs: HRTmonPrefs.o HRTmonGUI2.o HRTboot.o assembler.o HRTmonLoad.o
 	$(LN) $^ -o $@
 
@@ -100,14 +116,19 @@ all: HRTmonPrefs HRTmon HRTmon.data
 
 # how to create additionally listing files
 %.list: %.s | .depend
-	$(ASM) -o $(@:.list=.o) -L $@ $<
+	$(ASM) $(ASMOUT)$(@:.list=.o) -L $@ $<
+
+HRTmon.data.list: src/HRTmonV2.s .date | .depend
+	$(ASM) $(ASMOUT)HRTmon.data -L $@ $<
 
 # check for unused labels
-unused: $(OFILES:.o=.list)
+unused: HRTmon.data.list
 	grep " LAB .* UNUSED" *.list
 
 clean:
-	$(RM) HRTmon HRTmonPrefs HRTmon.data *.o .depend
+	$(RM) HRTmon HRTmonPrefs HRTmon.data *.o *.list .depend
+
+.PHONY: .date
 
 .date :
 	$(DATE)

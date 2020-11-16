@@ -1,2 +1,6 @@
+*.o
 .date
 .depend
+HRTmon
+HRTmon.data
+HRTmonPrefs
