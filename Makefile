@@ -31,7 +31,7 @@ CFLAGS=
 CP=Copy Clone
 MV=Copy
 RM=Delete All
-DATE=wdate >.date
+DATE=wdate >
 
 # on Amiga default=DEBUG
 ifndef DEBUG
@@ -48,7 +48,7 @@ CFLAGS=-I$(INCLUDEOS3)
 CP=cp -p
 MV=mv
 RM=rm -fr
-DATE=date "+(%d.%m.%Y)" | xargs printf >.date
+DATE=date "+(%d.%m.%Y)" | xargs printf >
 VAMOS=vamos -qC68020 -m4096 -s128 --
 
 # on UNIX default=NoDEBUG
@@ -72,7 +72,7 @@ CC=vc -c99 -g -I. $(CFLAGS) -sc -deps
 
 else
 
-# normal options
+# Optimize options
 # VASM: -wfail -warncomm -databss
 ASMBASE=vasmm68k_mot $(VASMOPT) -ignore-mult-inc -nosym -quiet -wfail -opt-allbra -opt-clr -opt-lsl -opt-movem -opt-nmoveq -opt-pea -opt-size -opt-st -depend=make -depfile .depend/$@.dep
 ASM=$(ASMBASE) -Fhunkexe
@@ -100,6 +100,7 @@ LN=vc
 #
 HRTmon.data: src/HRTmonV2.s .date | .depend
 	$(ASM) $(ASMOUT)$@ $<
+
 #
 # HRTmon loader
 #
@@ -126,12 +127,13 @@ unused: HRTmon.data.list
 	grep " LAB .* UNUSED" *.list
 
 clean:
-	$(RM) HRTmon HRTmonPrefs HRTmon.data *.o *.list .depend
+	$(RM) HRTmon HRTmonPrefs HRTmon.data *.o *.list .date .depend
 
-.PHONY: .date
+# targets which must be always built
+.PHONY: .date all clean unused
 
 .date :
-	$(DATE)
+	$(DATE) $@
 
 .depend:
 	@mkdir .depend
