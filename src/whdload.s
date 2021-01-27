@@ -1,4 +1,3 @@
-; $Id: whdload.s 1.10 2015/12/06 22:14:02 wepl Exp wepl $
 ;
 ; this file contains all whdload related commands
 ;
@@ -28,16 +27,15 @@ resload_Relocate	 = 80
 resload_Delay		 = 84
 resload_DeleteFile	 = 88
 resload_ProtectSMC	 = 92
+WHDLTAG_BUILD_GET	 = $88000013
 
 ;---------------
 ; stingray, 02-Dec-2015:
 ; Was "WL" but since the WS command had to be renamed to WSM
 ; I have renamed the "WL" command to "WLM" to have a consistent
 ; naming scheme.
-
 ; command WLM -	load a file using resload_LoadFile
 ;		(the same as command L but via WHDLoad)
-;
 
 cmd_wlm		tst.l	(whd_base)
 		beq	w_notinwhdload
@@ -73,35 +71,22 @@ cmd_wlm		tst.l	(whd_base)
 		bne	.ok
 		lea	(w_txt_nofile),a0
 		bsr	print
-		jmp	end_command
+		bra	w_end
 .ok
 		lea	(w_txt_file),a0
-		bsr	print
-		move.l	d3,a0
-		bsr	print
-		lea	(w_txt_loaded),a0
-		bsr	print
-		move.l	d4,d0
-		move.l	#8,d1
-		bsr	print_hex
-		lea	(w_txt_length),a0
-		bsr	print
-		move.l	d5,d0
-		bsr	print_hex
-		lea	(w_txt_lengthd),a0
-		bsr	print
-		move.l	d5,d0
-		bsr	print_decCR
-		jmp	end_command
+		move.l	d5,-(a7)
+		movem.l	d3-d5,-(a7)
+		move.l	a7,a1
+		bsr	printf
+		add	#16,a7
+		bra	w_end
 
 ;---------------
 ; stingray, 02-Dec-2015:
 ; Was "WS" which made the originally built-in "ws" command
 ; (W.rite S.ectors) not work anymore, renamed to WSM!
-
 ; command WSM -	save memory region using resload_SaveFile
 ;		(the same as command S but via WHDLoad)
-;
 
 cmd_wsm		tst.l	(whd_base)
 		beq	w_notinwhdload
@@ -135,7 +120,6 @@ cmd_wsm		tst.l	(whd_base)
 
 ;---------------
 ; key Alt+PrtSc - save current screen using resload_SaveFile
-;
 
 key_prtsc	movem.l	d0-d3/a0-a2,-(a7)
 
@@ -229,7 +213,7 @@ cmd_wd		move.l	(whd_base),d0
 		move.l	d0,(pc_reg)
 
 		st	escape
-		jmp	end_command
+		bra	w_end
 
 .tab		dc.b	8	;#0 Four-Word
 		dc.b	8	;#1 Throwaway Four-Word
@@ -360,64 +344,51 @@ cmd_wpsmc	tst.l	(whd_base)
 cmd_wi		tst.l	(whd_base)
 		beq	w_notinwhdload
 
+		clr.l	-(a7)
+		clr.l	-(a7)
+		pea	WHDLTAG_BUILD_GET
+		move.l	a7,a0
+		move.l	(whd_base),a2
+		jsr	(resload_Control,a2)
+		move.l	(whd_version),(a7)
 		lea	(w_txt_whdload,pc),a0
-		cmp.b	#"0",(10,a0)
-		bne	.verok
-		moveq	#0,d0
-		move.w	(whd_version),d0
-		divu	#10,d0
-		add.b	d0,(9,a0)
-		swap	d0
-		add.b	d0,(10,a0)
-		move.w	(whd_revision),d0
-		add.b	d0,(12,a0)
-.verok		bsr	print
+		move.l	a7,a1
+		bsr	printf
+		add	#12,a7
 
 		lea	(w_txt_chipmem,pc),a0
-		bsr	print
-		move.l	(max_chip),d0
-		moveq	#6,d1
-		bsr	print_hexCR
+		lea	(max_chip),a1
+		bsr	printf
 
 	;if WHDLoad >= v16.6 print expmem
 		move.l	(whd_expstrt),d0
 		beq	.noexp
-		lea	(w_txt_expmem1,pc),a0
-		bsr	print
-		moveq	#8,d1
-		bsr	print_hex
-		lea	(w_txt_expmem2,pc),a0
-		bsr	print
-		move.l	(whd_expstop),d0
-		moveq	#8,d1
-		bsr	print_hex
-		lea	(w_txt_expmem3,pc),a0
-		bsr	print
-		move.l	(whd_expstop),d0
-		sub.l	(whd_expstrt),d0
-		moveq	#6,d1
-		bsr	print_hexCR
+		move.l	(whd_expstop),d1
+		move.l	d1,-(a7)
+		sub.l	d0,(a7)
+		move.l	(a7),-(a7)
+		move.l	d1,-(a7)
+		move.l	d0,-(a7)
+		lea	(w_txt_expmem,pc),a0
+		move.l	a7,a1
+		bsr	printf
+		add	#16,a7
 .noexp
-		
 	;if WHDLoad >= v16.9 print slave
 		move.l	(whd_slvstrt),d0
 		beq	w_end
-		lea	(w_txt_slvmem1,pc),a0
+		move.l	(whd_slvstop),d1
+		move.l	d1,-(a7)
+		sub.l	d0,(a7)
+		move.l	(a7),-(a7)
+		move.l	d1,-(a7)
+		move.l	d0,-(a7)
+		lea	(w_txt_slvmem,pc),a0
 		bsr	print
-		moveq	#8,d1
-		bsr	print_hex
-		lea	(w_txt_expmem2,pc),a0
-		bsr	print
-		move.l	(whd_slvstop),d0
-		moveq	#8,d1
-		bsr	print_hex
-		lea	(w_txt_expmem3,pc),a0
-		bsr	print
-		move.l	(whd_slvstop),d0
-		sub.l	(whd_slvstrt),d0
-		moveq	#6,d1
-		bsr	print_hexCR
-		
+		lea	(w_txt_mem,pc),a0
+		move.l	a7,a1
+		bsr	printf
+		add	#16,a7
 		bra	w_end
 		
 ;---------------
@@ -448,15 +419,11 @@ w_txt_success		dc.b	"success",10,0
 w_txt_resloaderr	dc.b	"error, resload function failed",10,0
 w_txt_notinwhdload	dc.b	"error, whdload not active or old whdload version",10,0
 w_txt_nofile		dc.b	"file not found (or length = 0)",10,0
-w_txt_file		dc.b	"file '",0
-w_txt_loaded		dc.b	"' loaded to $",0
-w_txt_length		dc.b	" length=$",0
-w_txt_lengthd		dc.b	"=",0
-w_txt_whdload		dc.b	"WHDLoad v00.0",10,0
-w_txt_chipmem		dc.b	"chipmem   $000000 -   $",0
-w_txt_expmem1		dc.b	"expmem  $",0
-w_txt_expmem2		dc.b	" - $",0
-w_txt_expmem3		dc.b	" = $",0
-w_txt_slvmem1		dc.b	"slave   $",0
+w_txt_file		dc.b	"file '%s' loaded to $%lx length=$%lx=%ld",10,0
+w_txt_whdload		dc.b	"WHDLoad v%d.%d.%ld",10,0
+w_txt_chipmem		dc.b	"ChipMem - $%lx",10,0
+w_txt_expmem		dc.b	"ExpMem"
+w_txt_mem		dc.b	"  $%lx - $%lx = $%lx = %ld",10,0
+w_txt_slvmem		dc.b	"Slave ",0
 	EVEN
 
