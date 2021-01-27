@@ -98,7 +98,8 @@ LN=vc
 #
 # HRTmon.data (default target)
 #
-HRTmon.data: src/HRTmonV2.s .date | .depend
+HRTmon.data: src/HRTmonV2.s | .depend
+	$(DATE) .date
 	$(ASM) $(ASMOUT)$@ $<
 
 #
@@ -119,7 +120,8 @@ all: HRTmonPrefs HRTmon HRTmon.data
 %.list: %.s | .depend
 	$(ASM) $(ASMOUT)$(@:.list=.o) -L $@ $<
 
-HRTmon.data.list: src/HRTmonV2.s .date | .depend
+HRTmon.data.list: src/HRTmonV2.s | .depend
+	$(DATE) .date
 	$(ASM) $(ASMOUT)HRTmon.data -L $@ $<
 
 # check for unused labels
@@ -130,7 +132,7 @@ clean:
 	$(RM) HRTmon HRTmonPrefs HRTmon.data *.o *.list .date .depend
 
 # targets which must be always built
-.PHONY: .date all clean unused
+.PHONY: all clean unused
 
 .date :
 	$(DATE) $@
