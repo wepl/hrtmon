@@ -94,6 +94,7 @@ help_txt
  dc.b "X                  : exit",$a
  dc.b "KILL               : remove HRTmon",$a
  dc.b "HEXLOCK (on|off)   : switches hexadecimal mode as default",$a
+ dc.b "TT                 : show exec tasks",10
 
  dc.b $a
  dc.b "F1     : Clear screen",$a

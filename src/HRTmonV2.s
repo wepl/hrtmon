@@ -168,6 +168,8 @@ PTR_CUSTOM	equ $A9F000	;saved custom table in uae
 	include exec/execbase.i
 	include devices/hardblocks.i
 
+ BITDEF AF,68060,7		;AttnFlags
+
 ***********************************************************
 ;-------------- MACRO same as reloc_pic subroutine --------
 
@@ -3723,121 +3725,135 @@ cmd_excep	moveq	#0,d2			;first vector
 
 ;-------------- print exec tasks --------------
 
-cmd_tt		move.l	4,a2		;A2 = exec
+cmd_tt		move.w	window_bot,d4
+		sub.w	window_top,d4	;D4 = lines left on screen
+		move.w	d4,d5		;D5 = lines on screen
+
 		lea	(.texec,pc),a0
-		bsr	print
-		move.l	a2,d0
-		moveq	#8,d1
-		bsr	print_hex
-		jsr	_PrintLn
+		lea	(4),a1
+		move.l	(a1),a2		;A2 = exec
+		bsr	printf
+
 	;current
-		lea	(.tcurrent,pc),a0
-		bsr	print
 		move.l	(276,a2),a3	;A3 = current
-		bsr	.node
-	;ready
-		lea	(.tready,pc),a0
+		lea	(.last,pc),a0
+		cmp.b	#TS_RUN,(TC_STATE,a3)
+		bne	.1
+		lea	(.current,pc),a0
+.1		move.l	(LN_NAME,a3),-(a7)
+		move.l	a3,-(a7)
+		move.l	a0,-(a7)
+		move.l	a7,a1
+		lea	(.run,pc),a0
+		bsr	printf
+		add.w	#12,a7
+
+	;header
+		lea	(.head,pc),a0
 		bsr	print
+		subq.w	#3,d4
+
+	;ready
+		lea	(.tready,pc),a5
 		move.l	(406,a2),a3	;A3 = taskready
 		bsr	.node
 	;waiting
-		lea	(.twait,pc),a0
-		bsr	print
+		lea	(.twait,pc),a5
 		move.l	(420,a2),a3	;A3 = taskwaiting
 		bsr	.node
 		bra	end_command
 
-.node		tst.l	(a3)
+.node		tst.b	break
+		bne	.rts
+		tst.l	(a3)
 		bne	.go
-		rts
-.go		move.l	a3,d0
-		moveq	#8,d1
-		bsr	print_hex
-	;task/process
-		lea	(.ttask,pc),a0
-		cmp.b	#1,(8,a3)
-		beq	.task
-		lea	(.tproc,pc),a0
-.task		bsr	print
-	;sp
-		move.l	(54,a3),a4
-		add.w	#70,a4
-		cmp	#37,(20,a2)	;exec version
-		blo	.v34
-		addq.w	#4,a4
-.v34		lea	(.tsp,pc),a0
-		bsr	print
-		move.l	a4,d0
-		moveq	#8,d1
-		bsr	print_hex
-	;pc
-		lea	(.tpc,pc),a0
-		bsr	print
-		move.l	(a4),d0
-		moveq	#8,d1
-		bsr	print_hex
+.rts		rts
+
+; stack content of an inactive task (TC_SPREG):
+; offset length content
+;	 2	flag word, $9000 if copro-mid is saved, otherwise $ffff
+;	 3*4	saved FPCR/FPSR/FPIAR
+;	 8*12	saved fp0-fp7
+;	 12	coprocessor mid-instruction frame (type 9), only saved if flag == $9000
+;	 2	$ffff alignment
+; above stuff is only saved if first byte of fsave is <> 0
+;	 4/...	fsave state frame, first word type, second word length for 68881/2/68040
+;		on 68060 always 12 bytes
+; above stuff is only saved if FPU is present
+;	 4	pc
+;	 2	sr
+; 	 15*4	d0-a6
+
+.go
 	;name
-		lea	(.tspace,pc),a0
-		bsr	print
-		move.l	(10,a3),a0
-		bsr	print
-		jsr	_PrintLn
+		move.l	(LN_NAME,a3),-(a7)
+	;SP
+		move.l	(TC_SPREG,a3),a4
+		tst.w	(AttnFlags,a2)		;fpu used?
+		bpl	.sp
+		tst.b	(a4)			;fsave null frame?
+		beq	.fsave
+		move.w	(a4)+,d0
+		add.w	#3*4+8*12+2,a4		;fpcr/fpsr/fpiar, fp0-7, alignment
+		cmp.w	#$9000,d0
+		bne	.fsave
+		add.w	#12,a4			;copro-mid stack frame
+.fsave		btst	#AFB_68060,(AttnFlags,a2)
+		bne	.fsave60
+		move.l	(a4)+,d0
+		add.w	d0,a4
+		bra	.sp
+.fsave60	add.w	#12,a4
+.sp		pea	(4+2+4*15,a4)
+	;Regs
+		pea	(4+2,a4)
+	;PC + rts + rts
+		move.l	(4+2+4*15+4,a4),-(a7)
+	;PC
+		move.l	(a4),-(a7)
+	;tc_SPReg
+		move.l	(TC_SPREG,a3),-(a7)
+	;task/process
+		lea	(.ttask,pc),a1
+		cmp.b	#NT_TASK,(LN_TYPE,a3)
+		beq	.task
+		lea	(.tproc,pc),a1
+		cmp.b	#NT_PROCESS,(LN_TYPE,a3)
+		beq	.task
+		lea	(.tunknown,pc),a1
+.task		move.l	a1,-(a7)
+	;task
+		move.l	a3,-(a7)
+	;run/ready/wait
+		move.l	a5,-(a7)
+
+		lea	.line,a0
+		move.l	a7,a1
+		bsr	printf
+		add.w	#9*4,a7
+
 		move.l	(a3),a3
-		bra	.node
-
-	IFEQ 1
-	moveq	#0,d2			;first vector
-		sub.l	a2,a2			;first vector
-
-		move.w	window_bot,d4
-		sub.w	window_top,d4
-		move.w	d4,d5
-.loop		tst.b	break
-		bne	.exit
-		move.l	d2,d0
-		lea	_exceptionnames,a0
-		jsr	_DoStringNull
-		move.l	d0,d3
-		beq	.next
-
-		lea	.t1(pc),a0
-		bsr	print
-		move.l	(a2),d0
-		moveq	#8,d1
-		bsr	print_hex
-		lea	.t2(pc),a0
-		bsr	print
-		move.l	a2,d0
-		moveq	#2,d1
-		bsr	print_hex
-		lea	.t3(pc),a0
-		bsr	print
-		move.l	d3,a0
-		bsr	print
-		jsr	_PrintLn
 
 		subq.w	#1,d4
-		bne	.next
+		bne	.node
 		move.w	d5,d4
 		bsr	get_key
+		lea	(.head,pc),a0
+		bsr	print
+		subq.w	#1,d4
+		bra	.node
 
-.next		addq.w	#1,d2
-		addq.l	#4,a2
-		cmp.w	#64,d2
-		bne	.loop
-
-.exit		bra.w	end_command
-	ENDC
-
-.texec		dc.b	"exec base = ",0
-.tcurrent	dc.b	"current:",10,0
-.tready		dc.b	"ready:",10,0
-.twait		dc.b	"waiting:",10,0
-.ttask		dc.b	" Task",0
-.tproc		dc.b	" Proc",0
-.tpc		dc.b	" pc=",0
-.tsp		dc.b	" sp=",0
-.tspace		dc.b	" ",0
+.texec		dc.b	"execbase = %lx",10,0
+.run		dc.b	"%s running: TC=%lx %s",10,0
+.last		dc.b	"last",0
+.current	dc.b	"currently",0
+.head		dc.b	"sta       TC Type tc_SPReg       PC PC+2*RTS     Regs       SP ln_Name",10,0
+.tready		dc.b	"rdy",0
+.twait		dc.b	"wai",0
+.ttask		dc.b	"Task",0
+.tproc		dc.b	"Proc",0
+.tunknown	dc.b	"????",0
+.line		dc.b	"%s %8lx %s %8lx %8lx %8lx %8lx %8lx %s",10,0
 		even
 
 ;-------------- disk to file -----------------------------------
