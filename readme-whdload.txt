@@ -1,5 +1,5 @@
 
-to use the whdload commands whdload version 8.1.1908 or better is required
+to use the WHDLoad commands WHDLoad version 8.1.1908 or better is required,
 moreover in the HRTmonPrefs the option "No VBR move" must be checked
 
 the following commands are currently available:
@@ -18,14 +18,14 @@ the following commands are currently available:
 
  WPD	start length - delete a previousy created memory protection
 
- WQ	- quit whdload
+ WQ	- quit WHDLoad
 	returns to workbench
 
- WD	- quit whdload with debug
-	write whdload's coredumps and returns to workbench
+ WD	- quit WHDLoad with debug
+	write WHDLoad's coredumps and returns to workbench
 	(there is no stackframe cleanup!)
 
- WI	- whdload info
+ WI	- WHDLoad info
 	shows the WHDLoad version and size of chip memory used
 	if WHDLoad has version >= 16.6 it also shows start, end and size
 	of expansion memory (only if expmem is used)
@@ -34,18 +34,15 @@ the following commands are currently available:
 
  WLM	name start - load file into memory
 	does the same as command L and has the same parameters
-	the actual directory is that from the slave (or ws_CurrentDir if used)
+	the actual directory(ies) is that from the Slave
 
  WSM	name start end - save memory region to a file
 	does the same as command S and has the same parameters
-	the actual directory is that from the slave (or ws_CurrentDir if used)
+	the file will be saved to the first data directory of the current
+	WHDLoad run
 
 the following keys are currently available:
 
- Alt + PrtSc	dumps the actual screen as "hrtmon-screen.txt" in the 
-		directory where the files of the installed program are located
-		(the 'data' directory if set via option or by the slave else
-		the directory where the icon called by is located)
-
-Wepl 28.08.2011 (wepl@whdload.de)
+ Alt + PrtSc	dumps the actual screen as "hrtmon-screen.txt" to the first
+		data directory of the current WHDLoad run
 

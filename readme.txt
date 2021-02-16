@@ -8,6 +8,9 @@ http://dumbo.cryogen.ch/hrtmon/index.html
 or send me an email at:
 Alain.Malek@cryogen.ch
 
+please report bugs or contribute via
+https://github.com/wepl/hrtmon
+
 the following files are included:
 
 ************************************
@@ -28,8 +31,6 @@ HRTmon.c
 ************************************
 HRTmon Prefs files
 ************************************
-
-DMakefile		(makefile for DICE C compiler)
 
 #GUI edited with GadToolsBox
 
@@ -71,7 +72,7 @@ Topaz3.raw
 The best place to start hacking the source is the HRTmonV2.s file.
 (and all the files in the 'src' directory)
 This file can be assembled at least with ASMOne, ASMPro, BASM or PhxAss.
+The supplied binaries are created using vasm/vbcc and the supplied Makefile.
 The resulting file should be saved as HRTmon.data.
 That's it, you have a new version of HRTmon.
-
 

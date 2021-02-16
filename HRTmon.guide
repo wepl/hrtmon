@@ -3,13 +3,12 @@
 @author "Alain Malek (Hornet of Alcatraz)"
 ## Dec 27, 1998
 ## This is a doc file in the amigaguide.library format.
-## $Id: HRTmon.guide 1.9 2017/04/28 02:02:12 wepl Exp wepl $
 
 ##-------------------------------------------------------------------
 
 @Node Main "HRTmon documentation"
 
-			HRTmon v2.37 Documentation
+			HRTmon v2.38 Documentation
 
                             @{" Introduction " Link Introduction}
                             @{" Requirements " Link Requirements}
@@ -25,6 +24,7 @@
 
                    look out for the latest version at:
                 http://dumbo.cryogen.ch/hrtmon/index.html
+                     https://github.com/wepl/hrtmon
 
 @EndNode
 
@@ -2029,6 +2029,19 @@ correspondance.
 
 @Node History "HRTmon/History"
                        @{b}History@{ub}
+
+version 2.38 Feb 16 2021 (Wepl)
+
+- added a gnu Makefile to build all components
+- adapted C sources to build all using vbcc, the binaries became
+  larger (assumed worse optimization compared to DICE) but I wanted to make
+  them cross compile, no functional changes, should work as before, also no
+  need to replace the binaries
+- added functions printf and _VSNPrintF
+- output of WHDLoad commands WLM and WI improved
+- new command TT to display the exec tasks
+- some dead code/data removed
+- created public repository at https://github.com/wepl/hrtmon
 
 version 2.37 Apr 28 2017 (Toni Wilen, Wepl)
 
