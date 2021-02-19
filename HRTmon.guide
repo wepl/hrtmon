@@ -2030,6 +2030,11 @@ correspondance.
 @Node History "HRTmon/History"
                        @{b}History@{ub}
 
+version 2.39 Feb 19 2021 (Wepl)
+
+- fixed WHDLoad command WD if entered from supervisor mode, seems did
+  never worked before
+
 version 2.38 Feb 16 2021 (Wepl)
 
 - added a gnu Makefile to build all components

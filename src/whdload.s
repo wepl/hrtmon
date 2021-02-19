@@ -185,30 +185,35 @@ cmd_wd		move.l	(whd_base),d0
 		sf	no_curs
 		bsr	clear_break
 
-		btst	#1,(sr_reg)
+		btst	#5,(sr_reg)
 		beq	.usermode
 
+	;reserve space on supervisor stack
+	;only 68010+ supported because stackframe size check
 .supermode	move.l	(ssp_reg),a1
 		move.w	(6,a1),d1		;frame type
 		and.w	#$f000,d1
 		rol.w	#4,d1
 		move.b	(.tab,pc,d1.w),d1	;frame length
 		sub.w	#12,a1
-		move.l	a1,(ssp_reg)
+	;move exception stackframe
+		move.l	a1,(ssp_reg)		;new ssp
 .copy		move.w	(12,a1),(a1)+
 		subq.w	#2,d1
 		bne	.copy
 		bra	.setargs
 
+	;reserve space on user stack
 .usermode	move.l	(usp_reg),a1
 		sub.w	#12,a1
 		move.l	a1,(usp_reg)
 
+	;set arguments for resload_Abort on stack
 .setargs	move.l	#TDREASON_DEBUG,(a1)+
 		move.l	(pc_reg),(a1)+
 		clr.w	(a1)+
 		move.w	(sr_reg),(a1)
-
+	;set PC to resload_Abort
 		add.l	#resload_Abort,d0
 		move.l	d0,(pc_reg)
 

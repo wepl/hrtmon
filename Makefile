@@ -134,9 +134,6 @@ clean:
 # targets which must be always built
 .PHONY: all clean unused
 
-.date :
-	$(DATE) $@
-
 .depend:
 	@mkdir .depend
 

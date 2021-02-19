@@ -45,7 +45,7 @@
 *******************************
 
 VER_MAJ equ 2
-VER_MIN equ 38
+VER_MIN equ 39
 
 ACA620 = 0
 ACA500PLUS = 0
@@ -967,7 +967,7 @@ monitor:	or	#$700,sr	;on 68060 it is granted that the first instruction
 		move.w	sr_reg,d0
 		and.w	#$2000,d0
 		bne.b	ok_ssp_a7
-		move.l	a0,a7_reg
+		move.l	a0,a7_reg		;a7_reg = USP
 ok_ssp_a7
 		clr.l	vbr_reg
 		cmp.w	#1,proc_type
